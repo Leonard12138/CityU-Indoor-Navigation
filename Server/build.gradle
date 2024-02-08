@@ -23,8 +23,10 @@ dependencies {
 	// lombok
 	implementation 'org.projectlombok:lombok:1.18.12'
 	annotationProcessor 'org.projectlombok:lombok:1.18.12'
+	
 	//db
-	runtimeOnly 'org.postgresql:postgresql'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+  	implementation 'org.postgresql:postgresql'
 }
 
 tasks.named('test') {

@@ -16,18 +16,6 @@ public class WifiData {
     private int level = 0;
     private String ssid;
     private String bssid;
-
-
-    public WifiData(int id, String imei, float X, float Y, float ori, String ssid, String BSSID, int level) {
-        this.id = id;
-        this.imei = imei;
-        this.X = X;
-        this.Y = Y;
-        this.ori = ori;
-        this.ssid = ssid;
-        this.bssid = BSSID;
-        this.level = level;
-    }
     
     @Override
     public String toString() {
