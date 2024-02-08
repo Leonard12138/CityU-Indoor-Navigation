@@ -26,8 +26,6 @@ public interface WifiDataRepository extends JpaRepository<WifiData, Integer> {
 
     List<WifiData> findByLevelGreaterThan(int level);
 
-    List<WifiData> findByXAndY(float x, float y);
-
     List<WifiData> findBySsidContaining(String substring);
 
     @Query(value = "SELECT * FROM wifi_data WHERE level > :level", nativeQuery = true)
