@@ -171,30 +171,37 @@ public class WifiDataPick extends AppCompatActivity implements View.OnClickListe
                     if (ActivityCompat.checkSelfPermission(WifiDataPick.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
                             ActivityCompat.checkSelfPermission(WifiDataPick.this, Manifest.permission.ACCESS_WIFI_STATE) != PackageManager.PERMISSION_GRANTED ||
                             ActivityCompat.checkSelfPermission(WifiDataPick.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                        return ;
+                        return;
                     }
                     List<ScanResult> wifiList = wifiManager.getScanResults();
                     for (ScanResult scanResult : wifiList) {
                         String SSID = scanResult.SSID;
                         String BSSID = scanResult.BSSID;
                         int level = scanResult.level;
+
                         // Construct request body
                         RequestBody sendWifiDataRequestBody = new MultipartBody.Builder()
                                 .setType(MultipartBody.FORM)
                                 .addFormDataPart("type", "wifi")
-                                .addFormDataPart("x_pos", xEdit.getText().toString())
-                                .addFormDataPart("y_pos", yEdit.getText().toString())
+                                .addFormDataPart("x", xEdit.getText().toString())
+                                .addFormDataPart("y", yEdit.getText().toString())
                                 .addFormDataPart("ori", String.valueOf(tempOri[0]))
                                 .addFormDataPart("ssid", SSID)
                                 .addFormDataPart("bssid", BSSID)
-                                .addFormDataPart("wifi_level", String.valueOf(level))
+                                .addFormDataPart("level", String.valueOf(level))
                                 .build();
+
                         // Construct request
                         Request sendWifiDataRequest = new Request.Builder()
-                                .url("http://quantum.s1.natapp.cc/servlet/LocateDataPickServlet")
+                                .url("http://192.168.0.105:8080/locateDataPick/uploadWifiData")
                                 .post(sendWifiDataRequestBody)
                                 .build();
-                        myOkHttpClient.newCall(sendWifiDataRequest).execute();
+
+                        // Execute the request and close the response body
+                        try (okhttp3.Response response = myOkHttpClient.newCall(sendWifiDataRequest).execute()) {
+                            // Use response if needed
+                            // response.body().string();
+                        }
                     }
                 } catch (IOException error) {
                     error.printStackTrace();
@@ -203,6 +210,7 @@ public class WifiDataPick extends AppCompatActivity implements View.OnClickListe
             }
         }).start();
     }
+
 
     // Method to request location permission
     private void requestLocationPermission() {

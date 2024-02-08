@@ -6,6 +6,9 @@ import org.springframework.stereotype.Service;
 import com.CityUIndoorNavigation.server.data.WifiData;
 import com.CityUIndoorNavigation.server.repository.WifiDataRepository;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class LocateDataServiceImpl implements LocateDataService {
 
@@ -14,6 +17,7 @@ public class LocateDataServiceImpl implements LocateDataService {
     
     @Override
     public void saveWifiData(WifiData wifiData) {
+    	//log.info("Wifi Data: " + wifiData.toString());
         wifiDataRepository.save(wifiData);
     }
 }
