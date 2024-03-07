@@ -194,37 +194,15 @@ public class WifiDataPick extends AppCompatActivity implements View.OnClickListe
 
                         // Construct request
                         Request sendWifiDataRequest = new Request.Builder()
-<<<<<<< Updated upstream
                                 .url("http://192.168.0.104:8080/locateDataPick/uploadWifiData")//http://192.168.0.105:8080/locateDataPick/uploadWifiData
-=======
-                                .url("http://localhost:8080/locateDataPick/uploadWifiData")
->>>>>>> Stashed changes
                                 .post(sendWifiDataRequestBody)
                                 .build();
 
                         // Execute the request and check response
                         try (okhttp3.Response response = myOkHttpClient.newCall(sendWifiDataRequest).execute()) {
-<<<<<<< Updated upstream
                             if (!response.isSuccessful()) {
                                 success = false; // Set the flag if any request fails
                                 break; // Exit the loop if any request fails
-=======
-                            if (response.isSuccessful()) {
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        showAlertDialog("Success", "WifiData uploaded successfully");
-                                    }
-                                });
-                            } else {
-                                final String errorMessage = response.message();
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        showAlertDialog("Error", "Error uploading WifiData: " + errorMessage);
-                                    }
-                                });
->>>>>>> Stashed changes
                             }
                         }
                     }
@@ -250,6 +228,7 @@ public class WifiDataPick extends AppCompatActivity implements View.OnClickListe
             }
         }).start();
     }
+
 
 
 
