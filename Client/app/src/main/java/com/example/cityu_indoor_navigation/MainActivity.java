@@ -25,14 +25,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Dynamically request permissions
-        //getPermissions();
         // Initialize buttons and text boxes
-        // Connect, disconnect, magnetic field collection, acceleration data collection button variables
         Button buttonWifi = findViewById(R.id.wifi_data_pick);
+        Button buttonNav = findViewById(R.id.navigationButton);
 
         buttonWifi.setOnClickListener(this);
-
+        buttonNav.setOnClickListener(this);
     }
 
     @Override
@@ -42,46 +40,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (v.getId() == R.id.wifi_data_pick) {
             Intent intentWifi = new Intent(MainActivity.this, WifiDataPick.class);
             startActivity(intentWifi);
+        }else if (v.getId() == R.id.navigationButton) {
+            Intent intentNav = new Intent(MainActivity.this, NavigationActivity.class);
+            startActivity(intentNav);
         }
     }
 
-    public void startDataCollection(View view) {
-        // Method implementation to be added
-    }
 
-//    private void getPermissions() {
-//        List<String> permissionList = new ArrayList<>();
-//        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_PHONE_STATE)
-//                != PackageManager.PERMISSION_GRANTED) {
-//            permissionList.add(Manifest.permission.READ_PHONE_STATE);
-//        }
-//        // Request all unrequested permissions at once
-//        if (!permissionList.isEmpty()) {
-//            String[] permissions = permissionList.toArray(new String[permissionList.size()]);
-//            ActivityCompat.requestPermissions(MainActivity.this, permissions, 1);
-//        }
-//    }
-//
-//    @Override
-//    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-//                                           @NonNull int[] grantResults) {
-//        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-//        switch (requestCode) {
-//            case 1:
-//                if (grantResults.length > 0) {
-//                    for (int result : grantResults) {
-//                        if (result != PackageManager.PERMISSION_GRANTED) {
-//                            Toast.makeText(this, "You must grant all permissions to use this app",
-//                                    Toast.LENGTH_SHORT).show();
-//                            finish();
-//                            return;
-//                        }
-//                    }
-//                } else {
-//                    Toast.makeText(this, "An unknown error occurred", Toast.LENGTH_SHORT).show();
-//                    finish();
-//                }
-//                break;
-//        }
-//    }
+
 }
