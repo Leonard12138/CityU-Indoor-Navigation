@@ -204,9 +204,27 @@ public class WifiDataPick extends AppCompatActivity implements View.OnClickListe
 
                         // Execute the request and check response
                         try (okhttp3.Response response = myOkHttpClient.newCall(sendWifiDataRequest).execute()) {
+<<<<<<< Updated upstream
                             if (!response.isSuccessful()) {
                                 success = false; // Set the flag if any request fails
                                 break; // Exit the loop if any request fails
+=======
+                            if (response.isSuccessful()) {
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        showAlertDialog("Success", "WifiData uploaded successfully");
+                                    }
+                                });
+                            } else {
+                                final String errorMessage = response.message();
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        showAlertDialog("Error", "Error uploading WifiData: " + errorMessage);
+                                    }
+                                });
+>>>>>>> Stashed changes
                             }
                         }
                     }
