@@ -45,7 +45,7 @@ public class WifiDataPick extends AppCompatActivity implements View.OnClickListe
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 123;
     private int scanCount;
     private boolean isUiThreadStop = false;
-    private static String TAG = "WifiDataPick";
+    private static final String TAG = "WifiDataPick";
     private float[] tempOri;
 
     private TextView wifiTextView;
@@ -174,6 +174,7 @@ public class WifiDataPick extends AppCompatActivity implements View.OnClickListe
                         return;
                     }
                     List<ScanResult> wifiList = wifiManager.getScanResults();
+                    boolean success = true; // Flag to track if any request fails
                     for (ScanResult scanResult : wifiList) {
                         String SSID = scanResult.SSID;
                         String BSSID = scanResult.BSSID;
@@ -193,23 +194,41 @@ public class WifiDataPick extends AppCompatActivity implements View.OnClickListe
 
                         // Construct request
                         Request sendWifiDataRequest = new Request.Builder()
-                                .url("http://192.168.0.105:8080/locateDataPick/uploadWifiData")
+                                .url("http://192.168.0.104:8080/locateDataPick/uploadWifiData")//http://192.168.0.105:8080/locateDataPick/uploadWifiData
                                 .post(sendWifiDataRequestBody)
                                 .build();
 
-                        // Execute the request and close the response body
+                        // Execute the request and check response
                         try (okhttp3.Response response = myOkHttpClient.newCall(sendWifiDataRequest).execute()) {
-                            // Use response if needed
-                            // response.body().string();
+                            if (!response.isSuccessful()) {
+                                success = false; // Set the flag if any request fails
+                                break; // Exit the loop if any request fails
+                            }
                         }
                     }
+                    // Show dialog based on success flag after all requests are processed
+                    final String message = success ? "WifiData uploaded successfully" : "Error uploading WifiData";
+                    final String title = success ? "Success" : "Error";
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            showAlertDialog(title, message);
+                        }
+                    });
                 } catch (IOException error) {
                     error.printStackTrace();
                     Log.e(TAG, "Failed to send Wifi data: " + error.getMessage(), error);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            showAlertDialog("Error", "Failed to send Wifi data: " + error.getMessage());
+                        }
+                    });
                 }
             }
         }).start();
     }
+
 
 
     // Method to request location permission
@@ -304,5 +323,14 @@ public class WifiDataPick extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {    // Overridden change
 
+    }
+
+    private void showAlertDialog(String title, String message) {
+        AlertDialog.Builder dialog = new AlertDialog.Builder(WifiDataPick.this);
+        dialog.setTitle(title)
+                .setMessage(message)
+                .setCancelable(false)
+                .setPositiveButton("OK", null)
+                .show();
     }
 }
