@@ -194,11 +194,8 @@ public class WifiDataPick extends AppCompatActivity implements View.OnClickListe
 
                         // Construct request
                         Request sendWifiDataRequest = new Request.Builder()
-<<<<<<< Updated upstream
                                 .url("http://192.168.0.104:8080/locateDataPick/uploadWifiData")//http://192.168.0.105:8080/locateDataPick/uploadWifiData
-=======
                                 .url("http://localhost:8080/locateDataPick/uploadWifiData")
->>>>>>> Stashed changes
                                 .post(sendWifiDataRequestBody)
                                 .build();
 
