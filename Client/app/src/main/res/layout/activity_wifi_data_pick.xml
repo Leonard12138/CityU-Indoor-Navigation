@@ -37,6 +37,14 @@
         android:text="Back"
         tools:ignore="HardcodedText" />
 
+    <Button
+        android:id="@+id/start_new_scan"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Start New Scan"
+        tools:ignore="HardcodedText" />
+
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">

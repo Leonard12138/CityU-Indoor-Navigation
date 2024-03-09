@@ -1,9 +1,11 @@
 package com.example.cityu_indoor_navigation.datapick;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -26,6 +28,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.cityu_indoor_navigation.R;
 
@@ -57,6 +60,8 @@ public class WifiDataPick extends AppCompatActivity implements View.OnClickListe
 
     private OkHttpClient myOkHttpClient;
 
+    private BroadcastReceiver wifiScanReceiver;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,8 +69,6 @@ public class WifiDataPick extends AppCompatActivity implements View.OnClickListe
         initView();
 
         requestLocationPermission();
-
-
 
         // Get the sensor management object
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
@@ -100,6 +103,42 @@ public class WifiDataPick extends AppCompatActivity implements View.OnClickListe
                 }
             }
         }).start();
+
+        // Initialize BroadcastReceiver
+        initWifiScanReceiver();
+
+        // Register BroadcastReceiver
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
+        registerReceiver(wifiScanReceiver, intentFilter);
+    }
+
+    private void initWifiScanReceiver() {
+        wifiScanReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                boolean success = intent.getBooleanExtra(WifiManager.EXTRA_RESULTS_UPDATED, false);
+                if (success) {
+                    Log.d(TAG, "WiFi Scan Completed Successfully.");
+                    scanSuccess();
+                } else {
+                    Log.d(TAG, "WiFi Scan Failed.");
+                }
+            }
+        };
+    }
+
+    private void scanSuccess() {
+        // You can process the scan results here
+//        showAlertDialog("Scan Complete", "WiFi scan has completed successfully.");
+    }
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Unregister BroadcastReceiver to avoid memory leak
+        unregisterReceiver(wifiScanReceiver);
     }
 
     /**
@@ -120,7 +159,34 @@ public class WifiDataPick extends AppCompatActivity implements View.OnClickListe
         addX.setOnClickListener(this);
         addY.setOnClickListener(this);
         sendWifi.setOnClickListener(this);
+
+        Button startNewScan = findViewById(R.id.start_new_scan);
+        startNewScan.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startWifiScan();
+            }
+        });
     }
+
+    private void startWifiScan() {
+        // Check for permissions before starting a scan
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // Consider requesting the permission if not granted.
+            return;
+        }
+
+        // Start the scan
+        boolean scanStarted = wifiManager.startScan();
+        if(scanStarted) {
+            // Optionally, inform the user that a new scan has been started
+            Toast.makeText(this, "New scan started", Toast.LENGTH_SHORT).show();
+        } else {
+            // Handle the case where the scan did not start
+            Toast.makeText(this, "Failed to start new scan", Toast.LENGTH_SHORT).show();
+        }
+    }
+
 
     @Override
     public void onClick(View view) {
@@ -195,7 +261,6 @@ public class WifiDataPick extends AppCompatActivity implements View.OnClickListe
                         // Construct request
                         Request sendWifiDataRequest = new Request.Builder()
                                 .url("http://192.168.0.104:8080/locateDataPick/uploadWifiData")//http://192.168.0.105:8080/locateDataPick/uploadWifiData
-                                .url("http://localhost:8080/locateDataPick/uploadWifiData")
                                 .post(sendWifiDataRequestBody)
                                 .build();
 
@@ -285,6 +350,7 @@ public class WifiDataPick extends AppCompatActivity implements View.OnClickListe
      * @return Wifi information string
      */
     private String obtainWifiInfo() {
+
         wifiManager.startScan();
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return "Location or Wi-Fi permissions not granted"; // Placeholder value or handle differently
