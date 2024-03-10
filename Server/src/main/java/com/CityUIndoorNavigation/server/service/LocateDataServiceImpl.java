@@ -1,5 +1,7 @@
 package com.CityUIndoorNavigation.server.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,4 +22,9 @@ public class LocateDataServiceImpl implements LocateDataService {
     	//log.info("Wifi Data: " + wifiData.toString());
         wifiDataRepository.save(wifiData);
     }
+
+	@Override
+	public List<WifiData> getWifiData() {
+		return wifiDataRepository.findAll();
+	}
 }

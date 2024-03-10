@@ -77,7 +77,7 @@ public class NavigationActivity extends AppCompatActivity {
                 .build();
 
         Request request = new Request.Builder()
-                .url("http://192.168.0.104:8080/navigation/processWifiData") // //http://192.168.0.105:8080/navigation/processWifiData
+                .url("http://192.168.0.104:8080/indoorLocate/processWifiData") // //http://192.168.0.105:8080/navigation/processWifiData
                 .post(body)
                 .build();
 
