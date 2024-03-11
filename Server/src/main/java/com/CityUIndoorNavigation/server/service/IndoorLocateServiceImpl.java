@@ -1,29 +1,26 @@
 package com.CityUIndoorNavigation.server.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import com.CityUIndoorNavigation.server.data.WifiData;
+import com.CityUIndoorNavigation.server.repository.WifiDataRepository;
+import lombok.extern.slf4j.Slf4j;
 import java.util.Comparator;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-
-import com.CityUIndoorNavigation.server.controller.LocateDataPickController;
-import com.CityUIndoorNavigation.server.data.WifiData;
-
-import lombok.extern.slf4j.Slf4j;
-
 @Slf4j
 @Service
-public class indoorLocateServiceImpl implements indoorLocateService{
-	
-    @Autowired
-    protected LocateDataService locateDataService;
+public class IndoorLocateServiceImpl implements IndoorLocateService {
 
-	@Override
-	public String locateUser(List<WifiData> wifiDataList) {
-		
-		try {
+    @Autowired
+    private LocateDataService locateDataService;
+
+    @Autowired
+    private WifiDataRepository wifiDataRepository;
+
+    @Override
+    public String locateUser(List<WifiData> wifiDataList) {
+        try {
             log.info("Locating user...");
 
             // Retrieve all WiFi fingerprint data
@@ -34,12 +31,25 @@ public class indoorLocateServiceImpl implements indoorLocateService{
 
             log.info("User located at node: {}", nearestNode);
 
-            return nearestNode;
+            // Fetch XY coordinates based on the nearest node ID
+            List<Object[]> coordinates = wifiDataRepository.findDistinctCoordinatesByNodeId(nearestNode);
+
+            if (!coordinates.isEmpty()) {
+                float xCoordinate = (float) coordinates.get(0)[0];
+                float yCoordinate = (float) coordinates.get(0)[1];
+
+                log.info("Node ID: {}, X: {}, Y: {}", nearestNode, xCoordinate, yCoordinate);
+
+                return "Nearest Node: " + nearestNode + ", X: " + xCoordinate + ", Y: " + yCoordinate;
+            } else {
+                log.error("Coordinates not found for Node ID: {}", nearestNode);
+                return "Coordinates not found for Node ID: " + nearestNode;
+            }
         } catch (Exception e) {
             log.error("Error locating user: {}", e.getMessage());
             return null;
-            }
         }
+    }
 
     private String findNearestNeighbor(List<WifiData> wifiDataList, List<WifiData> wifiFingerprint) {
         // Iterate through each real-time scanned Wi-Fi data
@@ -63,5 +73,4 @@ public class indoorLocateServiceImpl implements indoorLocateService{
         double deltaY = wifiData1.getY() - wifiData2.getY();
         return Math.sqrt(deltaX * deltaX + deltaY * deltaY);
     }
-
 }

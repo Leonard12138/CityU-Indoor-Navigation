@@ -9,6 +9,8 @@ import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.View;
+import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -31,6 +33,9 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+
+import android.graphics.PointF;
+
 
 public class NavigationActivity extends AppCompatActivity {
 
@@ -121,22 +126,51 @@ public class NavigationActivity extends AppCompatActivity {
                     Log.e("HTTP Request", "Failed", e);
                 }
 
+                // Inside onResponse method
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
                     if (response.isSuccessful()) {
                         // Handle successful response
-                        String responseData = response.body().string();
-                        Log.d("HTTP Response", responseData);
+                        String locationInfo = response.body().string();
+                        Log.d("HTTP Response", locationInfo);
+
+                        // Extract information from the returned string
+                        String[] parts = locationInfo.split(", ");
+                        String nodeId = parts[0].substring(parts[0].indexOf(": ") + 2);
+                        float xCoordinate = Float.parseFloat(parts[1].substring(parts[1].indexOf(": ") + 2));
+                        float yCoordinate = Float.parseFloat(parts[2].substring(parts[2].indexOf(": ") + 2));
+
+                        // Use the extracted values as needed
+                        Log.d("Location Info", "Node ID: " + nodeId + ", X: " + xCoordinate + ", Y: " + yCoordinate);
+
+                        // Update the position of the map pin marker
+                        updateMapPinPosition(xCoordinate, yCoordinate);
+
+                        // Now you can use nodeId, xCoordinate, and yCoordinate as needed in your app
                     } else {
                         // Handle unsuccessful response
                         Log.e("HTTP Response", "Unsuccessful: " + response.message());
                     }
                 }
+
             });
         }
     }
 
+    private void updateMapPinPosition(float xCoordinate, float yCoordinate) {
+        // Get the ImageView for the map pin
+        ImageView mapPin = findViewById(R.id.mapPin);
 
+        // Convert coordinates to pixels on the image
+        PointF imageCoords = mapImageView.viewToSourceCoord(xCoordinate, yCoordinate);
+
+        // Set the position of the map pin
+        mapPin.setX(imageCoords.x - mapPin.getWidth() / 2);
+        mapPin.setY(imageCoords.y - mapPin.getHeight());
+
+        // Show the map pin
+        mapPin.setVisibility(View.VISIBLE);
+    }
 
 
 }

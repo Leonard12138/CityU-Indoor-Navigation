@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import com.CityUIndoorNavigation.server.data.WifiData;
 
 @Service
-public interface indoorLocateService {
+public interface IndoorLocateService {
 
 	String locateUser(List<WifiData> wifiDataList);
 

@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.CityUIndoorNavigation.server.data.WifiData;
-import com.CityUIndoorNavigation.server.service.indoorLocateService;
+import com.CityUIndoorNavigation.server.service.IndoorLocateService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -21,7 +21,7 @@ import java.util.List;
 public class IndoorLocateController {
 
     @Autowired
-    protected indoorLocateService indoorLocateService;
+    protected IndoorLocateService indoorLocateService;
 
     @PostMapping("/processWifiData")
     public ResponseEntity<String> processWifiData(@RequestBody List<WifiData> wifiDataList) {
@@ -36,10 +36,12 @@ public class IndoorLocateController {
 
             // Call the service to process and locate the user
             // Note: You may need to modify the service to handle a list of WifiData
-            String nearestNode = indoorLocateService.locateUser(wifiDataList);
-
+            String locationInfo = indoorLocateService.locateUser(wifiDataList);
+            log.info(locationInfo);
+            
+            
             // Return the nearest node information to the user
-            return ResponseEntity.ok("Nearest Node: " + nearestNode);
+            return ResponseEntity.ok(locationInfo);
         } catch (Exception e) {
             // Handle exceptions and return an error response
             log.error("Error processing WiFi Data: " + e.getMessage());
