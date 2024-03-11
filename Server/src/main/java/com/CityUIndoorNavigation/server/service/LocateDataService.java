@@ -12,5 +12,5 @@ public interface LocateDataService {
 
     void saveWifiData(WifiData wifiData);
 
-	List<WifiData> getWifiData();
+	List<WifiData> getWififingerprint();
 }

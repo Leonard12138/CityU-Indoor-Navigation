@@ -62,6 +62,8 @@ public class WifiDataPick extends AppCompatActivity implements View.OnClickListe
 
     private BroadcastReceiver wifiScanReceiver;
 
+    private EditText nodeIdInput;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -149,6 +151,7 @@ public class WifiDataPick extends AppCompatActivity implements View.OnClickListe
         yEdit = findViewById(R.id.y_position);
         xInterval = findViewById(R.id.x_interval);
         yInterval = findViewById(R.id.y_interval);
+        nodeIdInput = findViewById(R.id.node_id);
         wifiTextView = findViewById(R.id.wifi_information_exhibit);
         Button sendWifi = findViewById(R.id.wifi_send);    // Send button
         Button wifiBack = findViewById(R.id.wifi_back);    // Back button
@@ -252,11 +255,13 @@ public class WifiDataPick extends AppCompatActivity implements View.OnClickListe
                                 .addFormDataPart("type", "wifi")
                                 .addFormDataPart("x", xEdit.getText().toString())
                                 .addFormDataPart("y", yEdit.getText().toString())
+                                .addFormDataPart("node_id", nodeIdInput.getText().toString()) 
                                 .addFormDataPart("ori", String.valueOf(tempOri[0]))
                                 .addFormDataPart("ssid", SSID)
                                 .addFormDataPart("bssid", BSSID)
                                 .addFormDataPart("level", String.valueOf(level))
                                 .build();
+
 
                         // Construct request
                         Request sendWifiDataRequest = new Request.Builder()

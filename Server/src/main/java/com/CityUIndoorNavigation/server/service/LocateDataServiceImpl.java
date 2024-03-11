@@ -24,7 +24,7 @@ public class LocateDataServiceImpl implements LocateDataService {
     }
 
 	@Override
-	public List<WifiData> getWifiData() {
+	public List<WifiData> getWififingerprint() {
 		return wifiDataRepository.findAll();
 	}
 }

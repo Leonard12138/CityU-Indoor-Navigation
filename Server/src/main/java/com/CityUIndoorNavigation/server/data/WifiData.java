@@ -28,15 +28,16 @@ public class WifiData {
     private int level = 0;
     private String ssid;
     private String bssid;
+    private String node_id;
     
     @Override
     public String toString() {
         if (ssid.contains("'")) {
             ssid.replace("\'", "\\'");
-            return id + "," + imei + "," + X + "," + Y + "," + ori + "," +
+            return id + "," + node_id + "," + imei + "," + X + "," + Y + "," + ori + "," +
                     "'" + ssid + "'" + "," + "'" + bssid + "'" + "," + level;
         } else
-            return id + "," + imei + "," + X + "," + Y + "," + ori + "," +
+            return id + "," + node_id + "," + imei + "," + X + "," + Y + "," + ori + "," +
                     "'" + ssid + "'" + "," + "'" + bssid + "'" + "," + level;
     }
 
