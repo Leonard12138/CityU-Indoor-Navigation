@@ -255,7 +255,7 @@ public class WifiDataPick extends AppCompatActivity implements View.OnClickListe
                                 .addFormDataPart("type", "wifi")
                                 .addFormDataPart("x", xEdit.getText().toString())
                                 .addFormDataPart("y", yEdit.getText().toString())
-                                .addFormDataPart("node_id", nodeIdInput.getText().toString()) 
+                                .addFormDataPart("node_id", nodeIdInput.getText().toString())
                                 .addFormDataPart("ori", String.valueOf(tempOri[0]))
                                 .addFormDataPart("ssid", SSID)
                                 .addFormDataPart("bssid", BSSID)

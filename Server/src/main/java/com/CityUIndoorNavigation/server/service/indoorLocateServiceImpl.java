@@ -1,5 +1,7 @@
 package com.CityUIndoorNavigation.server.service;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,22 +24,43 @@ public class indoorLocateServiceImpl implements indoorLocateService{
 	@Override
 	public String locateUser(List<WifiData> wifiDataList) {
 		
-	      try {
-	      log.info("Fetching all WiFi Data!");
-	      
-	      // Retrieve all WiFi data using the service
-	      List<WifiData> wifiFingerprint = locateDataService.getWififingerprint();
-	
-	      // Return the retrieved data
-	      return null;
-	  } catch (Exception e) {
-	      // Handle exceptions and return an error response
-	      log.error("Error fetching all WiFi Data: " + e.getMessage());
-	  }
-		// TODO Auto-generated method stub
-		return null;
+		try {
+            log.info("Locating user...");
+
+            // Retrieve all WiFi fingerprint data
+            List<WifiData> wifiFingerprint = locateDataService.getWififingerprint();
+
+            // Implement k-NN algorithm to find the nearest node
+            String nearestNode = kNN(wifiDataList, wifiFingerprint);
+
+            log.info("User located at node: {}", nearestNode);
+
+            return nearestNode;
+        } catch (Exception e) {
+            log.error("Error locating user: {}", e.getMessage());
+            return null;
+            }
+        }
+
+	private String kNN(List<WifiData> wifiDataList, List<WifiData> wifiFingerprint) {
+	    int k = 3;  // Adjust the value of k as needed
+
+	    // Iterate through each real-time scanned Wi-Fi data
+	    for (WifiData realTimeWifiData : wifiDataList) {
+	        // Sort Wi-Fi fingerprints based on the absolute difference with RSSI values
+	        wifiFingerprint.sort(Comparator.comparingDouble(fingerprint ->
+	                Math.abs(realTimeWifiData.getLevel() - fingerprint.getLevel())));
+
+	        // Take the top k neighbors
+	        List<WifiData> nearestNeighbors = wifiFingerprint.subList(0, k);
+
+	        // Perform any additional processing based on the nearest neighbors
+	        // (e.g., voting mechanism to determine the final location)
+
+	        // For simplicity, return the node ID of the closest neighbor
+	        return nearestNeighbors.get(0).getNode_id();
+	    }
+
+	    return null;
 	}
-
-
-
 }
