@@ -42,22 +42,22 @@ public class LocateDataPickController {
         }
     }
     
-    @GetMapping("/getAllWifiData")
-    public ResponseEntity<List<WifiData>> getAllWifiData() {
-        try {
-            log.info("Fetching all WiFi Data!");
-            
-            // Retrieve all WiFi data using the service
-            List<WifiData> wifiDataList = locateDataService.getWifiData();
-
-            // Return the retrieved data
-            return ResponseEntity.ok(wifiDataList);
-        } catch (Exception e) {
-            // Handle exceptions and return an error response
-            log.error("Error fetching all WiFi Data: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        }
-    }
+//    @GetMapping("/getAllWifiData")
+//    public ResponseEntity<List<WifiData>> getAllWifiData() {
+//        try {
+//            log.info("Fetching all WiFi Data!");
+//            
+//            // Retrieve all WiFi data using the service
+//            List<WifiData> wifiDataList = locateDataService.getWifiData();
+//
+//            // Return the retrieved data
+//            return ResponseEntity.ok(wifiDataList);
+//        } catch (Exception e) {
+//            // Handle exceptions and return an error response
+//            log.error("Error fetching all WiFi Data: " + e.getMessage());
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+//        }
+//    }
     
     
 }

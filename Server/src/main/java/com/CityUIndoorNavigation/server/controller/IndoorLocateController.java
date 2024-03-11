@@ -22,12 +22,22 @@ public class IndoorLocateController {
     protected indoorLocateService indoorLocateService;
     
     @PostMapping("/processWifiData")
-    public ResponseEntity<String> pickWifiData(@RequestParam("type") String type, @ModelAttribute WifiData wifiData) {
+    public ResponseEntity<String> processWifiData(@RequestParam("type") String type, @ModelAttribute WifiData wifiData) {
     	
-    	log.info(wifiData.toString());
-    	
+        try {
+            log.info("Processing WiFi Data!");
+            log.info(wifiData.toString());
 
-    	return ResponseEntity.ok("WifiData uploaded successfully");
+            // Call the service to process and locate the user
+            String nearestNode = indoorLocateService.locateUser(wifiData);
+
+            // Return the nearest node information to the user
+            return ResponseEntity.ok("Nearest Node: " + nearestNode);
+        } catch (Exception e) {
+            // Handle exceptions and return an error response
+            log.error("Error processing WiFi Data: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing WiFi Data: " + e.getMessage());
+        }
         
     }
 }
