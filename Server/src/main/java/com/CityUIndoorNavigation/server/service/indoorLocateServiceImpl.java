@@ -1,6 +1,5 @@
 package com.CityUIndoorNavigation.server.service;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -31,7 +30,7 @@ public class indoorLocateServiceImpl implements indoorLocateService{
             List<WifiData> wifiFingerprint = locateDataService.getWififingerprint();
 
             // Implement k-NN algorithm to find the nearest node
-            String nearestNode = kNN(wifiDataList, wifiFingerprint);
+            String nearestNode = findNearestNeighbor(wifiDataList, wifiFingerprint);
 
             log.info("User located at node: {}", nearestNode);
 
@@ -42,25 +41,27 @@ public class indoorLocateServiceImpl implements indoorLocateService{
             }
         }
 
-	private String kNN(List<WifiData> wifiDataList, List<WifiData> wifiFingerprint) {
-	    int k = 3;  // Adjust the value of k as needed
+    private String findNearestNeighbor(List<WifiData> wifiDataList, List<WifiData> wifiFingerprint) {
+        // Iterate through each real-time scanned Wi-Fi data
+        for (WifiData realTimeWifiData : wifiDataList) {
+            // Find the nearest neighbor based on Euclidean distances
+            WifiData nearestNeighbor = wifiFingerprint.stream()
+                    .min(Comparator.comparingDouble(fingerprint ->
+                            calculateEuclideanDistance(realTimeWifiData, fingerprint)))
+                    .orElse(null);
 
-	    // Iterate through each real-time scanned Wi-Fi data
-	    for (WifiData realTimeWifiData : wifiDataList) {
-	        // Sort Wi-Fi fingerprints based on the absolute difference with RSSI values
-	        wifiFingerprint.sort(Comparator.comparingDouble(fingerprint ->
-	                Math.abs(realTimeWifiData.getLevel() - fingerprint.getLevel())));
+            // Return the ID of the nearest node
+            return nearestNeighbor.getNode_id();
+        }
 
-	        // Take the top k neighbors
-	        List<WifiData> nearestNeighbors = wifiFingerprint.subList(0, k);
+        return null;
+    }
 
-	        // Perform any additional processing based on the nearest neighbors
-	        // (e.g., voting mechanism to determine the final location)
+    private double calculateEuclideanDistance(WifiData wifiData1, WifiData wifiData2) {
+        // Calculate Euclidean distance between two points in a 2D space
+        double deltaX = wifiData1.getX() - wifiData2.getX();
+        double deltaY = wifiData1.getY() - wifiData2.getY();
+        return Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+    }
 
-	        // For simplicity, return the node ID of the closest neighbor
-	        return nearestNeighbors.get(0).getNode_id();
-	    }
-
-	    return null;
-	}
 }
