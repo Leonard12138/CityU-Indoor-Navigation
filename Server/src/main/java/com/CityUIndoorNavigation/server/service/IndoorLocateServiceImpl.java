@@ -35,8 +35,8 @@ public class IndoorLocateServiceImpl implements IndoorLocateService {
             List<Object[]> coordinates = wifiDataRepository.findDistinctCoordinatesByNodeId(nearestNode);
 
             if (!coordinates.isEmpty()) {
-                float xCoordinate = (float) coordinates.get(0)[0];
-                float yCoordinate = (float) coordinates.get(0)[1];
+                int xCoordinate =  (int) coordinates.get(0)[0];
+                int yCoordinate = (int) coordinates.get(0)[1];
 
                 log.info("Node ID: {}, X: {}, Y: {}", nearestNode, xCoordinate, yCoordinate);
 
@@ -61,7 +61,7 @@ public class IndoorLocateServiceImpl implements IndoorLocateService {
                     .orElse(null);
 
             // Return the ID of the nearest node
-            return nearestNeighbor.getNode_id();
+            return nearestNeighbor.getNodeId();
         }
 
         return null;

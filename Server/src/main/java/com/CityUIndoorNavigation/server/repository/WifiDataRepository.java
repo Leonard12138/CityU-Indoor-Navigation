@@ -27,6 +27,8 @@ public interface WifiDataRepository extends JpaRepository<WifiData, Integer> {
     List<WifiData> findByLevelGreaterThan(int level);
 
     List<WifiData> findBySsidContaining(String substring);
+    
+    List<WifiData> findByNodeId(String nodeId); 
 
     @Query(value = "SELECT * FROM wifi_data WHERE level > :level", nativeQuery = true)
     List<WifiData> findCustomByLevel(@Param("level") int level);
@@ -34,6 +36,7 @@ public interface WifiDataRepository extends JpaRepository<WifiData, Integer> {
     @Query("SELECT w FROM WifiData w WHERE w.level > :level")
     List<WifiData> findCustomByLevelJPQL(@Param("level") int level);
     
-    @Query("SELECT DISTINCT w.xCoordinate, w.yCoordinate FROM WifiData w WHERE w.nodeId = :nodeId")
+    @Query("SELECT DISTINCT w.x, w.y FROM WifiData w WHERE w.nodeId = :nodeId")
     List<Object[]> findDistinctCoordinatesByNodeId(@Param("nodeId") String nodeId);
+
 }

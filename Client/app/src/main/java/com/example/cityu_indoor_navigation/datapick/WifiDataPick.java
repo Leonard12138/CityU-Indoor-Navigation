@@ -208,8 +208,8 @@ public class WifiDataPick extends AppCompatActivity implements View.OnClickListe
                 dialog.setTitle("System Prompt").setMessage("x coordinate step value not entered!")
                         .setCancelable(false).setPositiveButton("OK", null).show();
             } else {
-                float tempX = Float.valueOf(xEdit.getText().toString());
-                float intervalX = Float.valueOf(xInterval.getText().toString());
+                int tempX = Integer.valueOf(xEdit.getText().toString());
+                int intervalX = Integer.valueOf(xInterval.getText().toString());
                 xEdit.setText(String.valueOf(tempX + intervalX));
             }
         } else if (id == R.id.add_value_y) {
@@ -218,8 +218,8 @@ public class WifiDataPick extends AppCompatActivity implements View.OnClickListe
                 dialog.setTitle("System Prompt").setMessage("y coordinate step value not entered!")
                         .setCancelable(false).setPositiveButton("OK", null).show();
             } else {
-                double tempY = Double.valueOf(yEdit.getText().toString());
-                double intervalY = Double.valueOf(yInterval.getText().toString());
+                int tempY = Integer.valueOf(yEdit.getText().toString());
+                int intervalY = Integer.valueOf(yInterval.getText().toString());
                 yEdit.setText(String.valueOf(tempY + intervalY));
             }
         } else if (id == R.id.wifi_back) {
@@ -244,39 +244,50 @@ public class WifiDataPick extends AppCompatActivity implements View.OnClickListe
                     }
                     List<ScanResult> wifiList = wifiManager.getScanResults();
                     boolean success = true; // Flag to track if any request fails
+                    StringBuilder filteredWifiData = new StringBuilder(); // To store filtered Wi-Fi data for display
                     for (ScanResult scanResult : wifiList) {
                         String SSID = scanResult.SSID;
                         String BSSID = scanResult.BSSID;
                         int level = scanResult.level;
 
-                        // Construct request body
-                        RequestBody sendWifiDataRequestBody = new MultipartBody.Builder()
-                                .setType(MultipartBody.FORM)
-                                .addFormDataPart("type", "wifi")
-                                .addFormDataPart("x", xEdit.getText().toString())
-                                .addFormDataPart("y", yEdit.getText().toString())
-                                .addFormDataPart("node_id", nodeIdInput.getText().toString())
-                                .addFormDataPart("ori", String.valueOf(tempOri[0]))
-                                .addFormDataPart("ssid", SSID)
-                                .addFormDataPart("bssid", BSSID)
-                                .addFormDataPart("level", String.valueOf(level))
-                                .build();
+                        // Check if the signal strength is between -30 dBm and -70 dBm
+                        if (level >= -70 && level <= -30) {
+                            // Construct request body
+                            RequestBody sendWifiDataRequestBody = new MultipartBody.Builder()
+                                    .setType(MultipartBody.FORM)
+                                    .addFormDataPart("type", "wifi")
+                                    .addFormDataPart("x", xEdit.getText().toString())
+                                    .addFormDataPart("y", yEdit.getText().toString())
+                                    .addFormDataPart("nodeId", nodeIdInput.getText().toString())
+                                    .addFormDataPart("ori", String.valueOf(tempOri[0]))
+                                    .addFormDataPart("ssid", SSID)
+                                    .addFormDataPart("bssid", BSSID)
+                                    .addFormDataPart("level", String.valueOf(level))
+                                    .build();
 
+                            // Construct request
+                            Request sendWifiDataRequest = new Request.Builder()
+                                    .url("http://172.28.178.14:8080/locateDataPick/uploadWifiData")//104desktop, 105laptop, 172.28.178.14 CITYU
+                                    .post(sendWifiDataRequestBody)
+                                    .build();
 
-                        // Construct request
-                        Request sendWifiDataRequest = new Request.Builder()
-                                .url("http://192.168.0.105:8080/locateDataPick/uploadWifiData")//104desktop, 105laptop
-                                .post(sendWifiDataRequestBody)
-                                .build();
-
-                        // Execute the request and check response
-                        try (okhttp3.Response response = myOkHttpClient.newCall(sendWifiDataRequest).execute()) {
-                            if (!response.isSuccessful()) {
-                                success = false; // Set the flag if any request fails
-                                break; // Exit the loop if any request fails
+                            // Execute the request and check response
+                            try (okhttp3.Response response = myOkHttpClient.newCall(sendWifiDataRequest).execute()) {
+                                if (!response.isSuccessful()) {
+                                    success = false; // Set the flag if any request fails
+                                    break; // Exit the loop if any request fails
+                                }
                             }
+
+                            // Append the filtered Wi-Fi data to the StringBuilder for display
+                            filteredWifiData.append("\nWifi Network ID: ").append(SSID)
+                                    .append("\nMac Address: ").append(BSSID)
+                                    .append("\nWifi Signal Strength: ").append(level).append("\n");
                         }
                     }
+
+
+
                     // Show dialog based on success flag after all requests are processed
                     final String message = success ? "WifiData uploaded successfully" : "Error uploading WifiData";
                     final String title = success ? "Success" : "Error";
@@ -366,10 +377,15 @@ public class WifiDataPick extends AppCompatActivity implements View.OnClickListe
         scanCount++;
         StringBuilder wifiInformation = new StringBuilder(scanCount + "\nScan result:");
 
-        for (ScanResult scanResult : wifiList)
-            wifiInformation.append("\nWifi Network ID: ").append(scanResult.SSID).
-                    append("\nMac Address: ").append(scanResult.BSSID).
-                    append("\nWifi Signal Strength: ").append(scanResult.level).append("\n");
+        for (ScanResult scanResult : wifiList) {
+            int signalStrength = scanResult.level;
+            if (signalStrength >= -70 && signalStrength <= -30) {
+                wifiInformation.append("\nWifi Network ID: ").append(scanResult.SSID)
+                        .append("\nMac Address: ").append(scanResult.BSSID)
+                        .append("\nWifi Signal Strength: ").append(signalStrength).append("\n");
+            }
+        }
+
         //Log.d("WifiDataPick", "wifiManager.getScanResults() is empty?:" + wifiManager.getScanResults().isEmpty() + "\n" + "Obtained WiFi Info:\n" + wifiInformation.toString());
         return wifiInformation.toString();
     }
