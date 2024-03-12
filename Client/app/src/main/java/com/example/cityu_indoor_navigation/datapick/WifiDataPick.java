@@ -250,8 +250,8 @@ public class WifiDataPick extends AppCompatActivity implements View.OnClickListe
                         String BSSID = scanResult.BSSID;
                         int level = scanResult.level;
 
-                        // Check if the signal strength is between -30 dBm and -70 dBm
-                        if (level >= -70 && level <= -30) {
+                        // Check if the signal strength is between -30 dBm and -90 dBm
+                        if (level >= -90 && level <= -30) {
                             // Construct request body
                             RequestBody sendWifiDataRequestBody = new MultipartBody.Builder()
                                     .setType(MultipartBody.FORM)
@@ -379,7 +379,7 @@ public class WifiDataPick extends AppCompatActivity implements View.OnClickListe
 
         for (ScanResult scanResult : wifiList) {
             int signalStrength = scanResult.level;
-            if (signalStrength >= -70 && signalStrength <= -30) {
+            if (signalStrength >= -90 && signalStrength <= -30) {
                 wifiInformation.append("\nWifi Network ID: ").append(scanResult.SSID)
                         .append("\nMac Address: ").append(scanResult.BSSID)
                         .append("\nWifi Signal Strength: ").append(signalStrength).append("\n");
