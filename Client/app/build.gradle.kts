@@ -45,7 +45,8 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("com.google.android.gms:play-services-maps:18.2.0")
 
-
+    //imageview
+    implementation ("com.davemorrissey.labs:subsampling-scale-image-view:3.10.0")
 
     //data acquire
     implementation ("com.squareup.okhttp3:okhttp:4.10.0")
@@ -55,7 +56,6 @@ dependencies {
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
 
-    //imageview
-    implementation ("com.davemorrissey.labs:subsampling-scale-image-view:3.10.0")
+
 
 }

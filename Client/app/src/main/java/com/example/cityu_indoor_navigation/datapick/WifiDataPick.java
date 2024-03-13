@@ -267,7 +267,7 @@ public class WifiDataPick extends AppCompatActivity implements View.OnClickListe
 
                             // Construct request
                             Request sendWifiDataRequest = new Request.Builder()
-                                    .url("http://172.28.178.14:8080/locateDataPick/uploadWifiData")//104desktop, 105laptop, 172.28.178.14 CITYU
+                                    .url("http://192.168.0.105:8080/locateDataPick/uploadWifiData")//104desktop, 192.168.0.105laptop, 172.28.178.14 CITYU
                                     .post(sendWifiDataRequestBody)
                                     .build();
 

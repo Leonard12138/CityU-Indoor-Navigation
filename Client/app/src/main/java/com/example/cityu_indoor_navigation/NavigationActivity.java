@@ -4,19 +4,22 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
+import android.graphics.drawable.Drawable;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
+import android.widget.FrameLayout;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
-import com.davemorrissey.labs.subscaleview.ImageSource;
-import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -35,16 +38,23 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 import android.graphics.PointF;
+import android.widget.LinearLayout;
 
+import com.davemorrissey.labs.subscaleview.ImageSource;
+import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
+import com.example.cityu_indoor_navigation.pin.PinView;
 
 public class NavigationActivity extends AppCompatActivity {
 
     private WifiManager wifiManager;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 123;
-    private SubsamplingScaleImageView mapImageView;
-    private OkHttpClient myOkHttpClient;
 
+    // Replace ImageView with SubsamplingScaleImageView
+    private PinView mapImageView;
+    private OkHttpClient myOkHttpClient;
     private static final int SCAN_INTERVAL = 3000; // Scan interval in milliseconds (e.g., 3 seconds)
+
+    private int scrollX = 0; // Variable to store scroll position
     private Handler scanHandler;
     private final Runnable scanRunnable = new Runnable() {
         @Override
@@ -58,8 +68,12 @@ public class NavigationActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_wifi_navigation);
+
         mapImageView = findViewById(R.id.floorPlan);
         mapImageView.setImage(ImageSource.resource(R.drawable.floor5));
+
+//        mapPinImageView = findViewById(R.id.mapPin);
+//        mapPinImageView.setImage(ImageSource.resource(R.drawable.map_pin));
 
         wifiManager = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
         if (wifiManager != null && !wifiManager.isWifiEnabled())
@@ -68,9 +82,11 @@ public class NavigationActivity extends AppCompatActivity {
 
         registerReceiver(wifiReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
 
+
         // Initialize the scan handler and start the initial scan
         scanHandler = new Handler();
         scanHandler.post(scanRunnable);
+
     }
 
     @Override
@@ -84,6 +100,16 @@ public class NavigationActivity extends AppCompatActivity {
     private final BroadcastReceiver wifiReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            if (ActivityCompat.checkSelfPermission(NavigationActivity.this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                return;
+            }
             List<ScanResult> scanResults = wifiManager.getScanResults();
             sendWifiDataToServer(scanResults);
         }
@@ -115,7 +141,7 @@ public class NavigationActivity extends AppCompatActivity {
 
             // Build the request
             Request request = new Request.Builder()
-                    .url("http://172.28.178.14:8080/indoorLocate/processWifiData")
+                    .url("http://192.168.0.105:8080/indoorLocate/processWifiData")//172.28.178.14
                     .post(requestBody)
                     .build();
 
@@ -127,50 +153,111 @@ public class NavigationActivity extends AppCompatActivity {
                 }
 
                 // Inside onResponse method
+// Inside onResponse method
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
                     if (response.isSuccessful()) {
-                        // Handle successful response
-                        String locationInfo = response.body().string();
-                        Log.d("HTTP Response", locationInfo);
+                        try {
+                            // Parse JSON response
+                            JSONObject jsonResponse = new JSONObject(response.body().string());
+                            Log.d("TAG", jsonResponse.toString());  // Debug message
 
-                        // Extract information from the returned string
-                        String[] parts = locationInfo.split(", ");
-                        String nodeId = parts[0].substring(parts[0].indexOf(": ") + 2);
-                        float xCoordinate = Float.parseFloat(parts[1].substring(parts[1].indexOf(": ") + 2));
-                        float yCoordinate = Float.parseFloat(parts[2].substring(parts[2].indexOf(": ") + 2));
+                            // Extract information from the JSON object
+                            String nodeId = jsonResponse.getString("nodeId");
+                            int xCoordinate = jsonResponse.getInt("xcoordinate");
+                            int yCoordinate = jsonResponse.getInt("ycoordinate");
 
-                        // Use the extracted values as needed
-                        Log.d("Location Info", "Node ID: " + nodeId + ", X: " + xCoordinate + ", Y: " + yCoordinate);
+                            // Use the extracted values as needed
+                            Log.d("Location Info", "Node ID: " + nodeId + ", X: " + xCoordinate + ", Y: " + yCoordinate);
 
-                        // Update the position of the map pin marker
-                        updateMapPinPosition(xCoordinate, yCoordinate);
+                            // Update the position of the map pin marker on the main (UI) thread
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    updateMapPinPosition(xCoordinate, yCoordinate);
+                                }
+                            });
 
-                        // Now you can use nodeId, xCoordinate, and yCoordinate as needed in your app
+                            // Now you can use nodeId, xCoordinate, and yCoordinate as needed in your app
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            // Handle JSON parsing error
+                            Log.e("JSON Parsing Error", "Error parsing JSON response", e);
+                        }
                     } else {
                         // Handle unsuccessful response
                         Log.e("HTTP Response", "Unsuccessful: " + response.message());
                     }
                 }
 
-            });
+
+
+
+                  // Method to update the map pin position
+// Method to update the map pin position
+                  private void updateMapPinPosition(int xCoordinate, int yCoordinate) {
+                      // Original image dimensions
+                      int originalWidth = 9006;
+                      int originalHeight = 5976;
+
+                      // SubsamplingScaleImageView dimensions
+                      int imageViewWidth = mapImageView.getSWidth();
+                      int imageViewHeight = mapImageView.getSHeight();
+
+                      // Calculate scaling factors
+                      float scalingFactorWidth = (float) imageViewWidth / originalWidth;
+                      float scalingFactorHeight = (float) imageViewHeight / originalHeight;
+
+                      // Translate coordinates to SubsamplingScaleImageView
+                      float pinLocationX = xCoordinate * scalingFactorWidth;
+                      float pinLocationY = yCoordinate * scalingFactorHeight;
+
+                      Log.d("X", "X"+pinLocationX);
+                      Log.d("Y", "Y"+pinLocationY);
+
+                      // Set the pin location
+                      PointF pinLocation = new PointF(pinLocationX, pinLocationY);
+                      mapImageView.setPin(pinLocation);
+
+                      float targetScale = 2.0f; // Example target scale
+                      
+                  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+            );
         }
     }
 
-    private void updateMapPinPosition(float xCoordinate, float yCoordinate) {
-        // Get the ImageView for the map pin
-        ImageView mapPin = findViewById(R.id.mapPin);
+    private int[] calculateDisplayedImageSize(int originalWidth, int originalHeight, int viewWidth, int viewHeight) {
+        float originalAspectRatio = (float) originalWidth / originalHeight;
+        float viewAspectRatio = (float) viewWidth / viewHeight;
 
-        // Convert coordinates to pixels on the image
-        PointF imageCoords = mapImageView.viewToSourceCoord(xCoordinate, yCoordinate);
+        int displayedWidth, displayedHeight;
 
-        // Set the position of the map pin
-        mapPin.setX(imageCoords.x - mapPin.getWidth() / 2);
-        mapPin.setY(imageCoords.y - mapPin.getHeight());
+        if (originalAspectRatio > viewAspectRatio) {
+            // Image is wider than the view. Width should match, and height should be scaled down.
+            displayedWidth = viewWidth;
+            displayedHeight = Math.round(viewWidth / originalAspectRatio);
+        } else {
+            // Image is taller than the view. Height should match, and width should be scaled down.
+            displayedHeight = viewHeight;
+            displayedWidth = Math.round(viewHeight * originalAspectRatio);
+        }
 
-        // Show the map pin
-        mapPin.setVisibility(View.VISIBLE);
+        return new int[]{displayedWidth, displayedHeight};
     }
-
 
 }

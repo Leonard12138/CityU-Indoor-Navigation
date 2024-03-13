@@ -2,6 +2,8 @@ package com.CityUIndoorNavigation.server.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.CityUIndoorNavigation.server.data.LocationResponse;
 import com.CityUIndoorNavigation.server.data.WifiData;
 import com.CityUIndoorNavigation.server.repository.WifiDataRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +21,7 @@ public class IndoorLocateServiceImpl implements IndoorLocateService {
     private WifiDataRepository wifiDataRepository;
 
     @Override
-    public String locateUser(List<WifiData> wifiDataList) {
+    public LocationResponse locateUser(List<WifiData> wifiDataList) {
         try {
             log.info("Locating user...");
 
@@ -40,10 +42,10 @@ public class IndoorLocateServiceImpl implements IndoorLocateService {
 
                 log.info("Node ID: {}, X: {}, Y: {}", nearestNode, xCoordinate, yCoordinate);
 
-                return "Nearest Node: " + nearestNode + ", X: " + xCoordinate + ", Y: " + yCoordinate;
+                return new LocationResponse(nearestNode, xCoordinate, yCoordinate);
             } else {
                 log.error("Coordinates not found for Node ID: {}", nearestNode);
-                return "Coordinates not found for Node ID: " + nearestNode;
+                return null;
             }
         } catch (Exception e) {
             log.error("Error locating user: {}", e.getMessage());

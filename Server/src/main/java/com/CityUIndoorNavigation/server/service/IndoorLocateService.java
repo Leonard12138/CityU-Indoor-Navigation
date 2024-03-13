@@ -4,12 +4,13 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.CityUIndoorNavigation.server.data.LocationResponse;
 import com.CityUIndoorNavigation.server.data.WifiData;
 
 @Service
 public interface IndoorLocateService {
 
-	String locateUser(List<WifiData> wifiDataList);
+	LocationResponse locateUser(List<WifiData> wifiDataList);
 
 
 
