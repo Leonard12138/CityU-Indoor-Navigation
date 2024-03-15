@@ -1,5 +1,7 @@
 package com.CityUIndoorNavigation.server.service;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
@@ -14,5 +16,7 @@ public interface NavigationService {
 	Node getNodeById(String id);
 	
 	String getNodeIdByRoomName(String roomName);
+
+	List<Map<String, Object>> findPath(String id, String destinationNodeId);
 
 }

@@ -1,7 +1,9 @@
 package com.example.cityu_indoor_navigation;
 
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -13,6 +15,8 @@ import android.os.Handler;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
@@ -56,6 +60,12 @@ public class NavigationActivity extends AppCompatActivity {
 
     private int scrollX = 0; // Variable to store scroll position
     private Handler scanHandler;
+
+    // Room search related UI components
+    private EditText searchEditText;
+    private Button searchButton;
+
+    private String currentPositionNodeId;
     private final Runnable scanRunnable = new Runnable() {
         @Override
         public void run() {
@@ -87,7 +97,93 @@ public class NavigationActivity extends AppCompatActivity {
         scanHandler = new Handler();
         scanHandler.post(scanRunnable);
 
+        // Initialize UI components
+        searchEditText = findViewById(R.id.searchEditText);
+        searchButton = findViewById(R.id.searchButton);
+
+        // Set click listener for the search button
+        searchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Get the entered room name
+                String roomName = searchEditText.getText().toString().trim();
+                // Get the current position node ID from your logic (Assuming it's stored in a variable named currentPositionNodeId)
+
+                // Post the current position node ID and room name to the server
+                postCurrentPositionAndRoomName(roomName);
+            }
+        });
     }
+
+    private void postCurrentPositionAndRoomName(String roomName) {
+        OkHttpClient client = new OkHttpClient();
+
+        // Create JSON object with the required parameters
+        JSONObject requestBody = new JSONObject();
+        try {
+            requestBody.put("startNodeId", currentPositionNodeId);
+            requestBody.put("destinationRoomName", roomName);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        // Build the request body
+        RequestBody body = RequestBody.create(MediaType.parse("application/json"), requestBody.toString());
+
+        // Build the request
+        Request request = new Request.Builder()
+                .url("http://192.168.0.105:8080//navigation/navigate")
+                .post(body)
+                .build();
+
+        // Execute the request asynchronously
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+                // Handle failure
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    try {
+                        String responseBody = response.body().string();
+                        JSONObject jsonResponse = new JSONObject(responseBody);
+                        Log.d("TAG", jsonResponse.toString());
+
+                        // Extract path information from the JSON response
+                        JSONArray pathArray = jsonResponse.getJSONArray("path");
+                        runOnUiThread(() -> {
+                            mapImageView.clearPathPoints(); // Clear existing path points
+                            for (int i = 0; i < pathArray.length(); i++) {
+                                try {
+                                    JSONObject node = pathArray.getJSONObject(i);
+                                    int xCoordinate = node.getInt("xCoordinate");
+                                    int yCoordinate = node.getInt("yCoordinate");
+
+                                    // Add each node's point to the path on the map
+                                    mapImageView.addPathPoint(new PointF(xCoordinate, yCoordinate));
+                                } catch (JSONException e) {
+                                    Log.e("JSON Parsing", "Error in parsing path array", e);
+                                }
+                            }
+                        });
+                    } catch (JSONException e) {
+                        Log.e("JSON Parsing", "Error parsing JSON response", e);
+                    }
+                } else {
+                    Log.e("HTTP Response", "Unsuccessful: " + response.message());
+                }
+            }
+
+
+
+
+        });
+    }
+
 
     @Override
     protected void onDestroy() {
@@ -114,6 +210,35 @@ public class NavigationActivity extends AppCompatActivity {
             sendWifiDataToServer(scanResults);
         }
     };
+
+    // Method to update the map pin position
+    private void updateMapPinPosition(int xCoordinate, int yCoordinate) {
+        // Original image dimensions
+        int originalWidth = 9006;
+        int originalHeight = 5976;
+
+        // SubsamplingScaleImageView dimensions
+        int imageViewWidth = mapImageView.getSWidth();
+        int imageViewHeight = mapImageView.getSHeight();
+
+        // Calculate scaling factors
+        float scalingFactorWidth = (float) imageViewWidth / originalWidth;
+        float scalingFactorHeight = (float) imageViewHeight / originalHeight;
+
+        // Translate coordinates to SubsamplingScaleImageView
+        float pinLocationX = xCoordinate * scalingFactorWidth;
+        float pinLocationY = yCoordinate * scalingFactorHeight;
+
+        Log.d("X", "X"+pinLocationX);
+        Log.d("Y", "Y"+pinLocationY);
+
+        // Set the pin location
+        PointF pinLocation = new PointF(pinLocationX, pinLocationY);
+        mapImageView.setPin(pinLocation);
+
+        float targetScale = 2.0f; // Example target scale
+
+    }
 
     private void sendWifiDataToServer(List<ScanResult> scanResults) {
         if (scanResults != null && !scanResults.isEmpty()) {
@@ -149,115 +274,74 @@ public class NavigationActivity extends AppCompatActivity {
             myOkHttpClient.newCall(request).enqueue(new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
-                    Log.e("HTTP Request", "Failed", e);
-                }
+                    e.printStackTrace();
 
-                // Inside onResponse method
-// Inside onResponse method
-                @Override
-                public void onResponse(Call call, Response response) throws IOException {
-                    if (response.isSuccessful()) {
-                        try {
-                            // Parse JSON response
-                            JSONObject jsonResponse = new JSONObject(response.body().string());
-                            Log.d("TAG", jsonResponse.toString());  // Debug message
-
-                            // Extract information from the JSON object
-                            String nodeId = jsonResponse.getString("nodeId");
-                            int xCoordinate = jsonResponse.getInt("xcoordinate");
-                            int yCoordinate = jsonResponse.getInt("ycoordinate");
-
-                            // Use the extracted values as needed
-                            Log.d("Location Info", "Node ID: " + nodeId + ", X: " + xCoordinate + ", Y: " + yCoordinate);
-
-                            // Update the position of the map pin marker on the main (UI) thread
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    updateMapPinPosition(xCoordinate, yCoordinate);
-                                }
-                            });
-
-                            // Now you can use nodeId, xCoordinate, and yCoordinate as needed in your app
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                            // Handle JSON parsing error
-                            Log.e("JSON Parsing Error", "Error parsing JSON response", e);
+                    // Display an alert dialog to notify the user about the failed connection
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            AlertDialog.Builder builder = new AlertDialog.Builder(NavigationActivity.this);
+                            builder.setTitle("Connection Error")
+                                    .setMessage("Failed to connect to the server. Please check your internet connection and try again.")
+                                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            // You can perform any additional actions here if needed
+                                            dialog.dismiss(); // Dismiss the dialog
+                                        }
+                                    })
+                                    .show();
                         }
-                    } else {
-                        // Handle unsuccessful response
-                        Log.e("HTTP Response", "Unsuccessful: " + response.message());
-                    }
+                    });
                 }
 
 
+                                                        // Inside onResponse method
+// Inside onResponse method
+                                                        @Override
+                                                        public void onResponse(Call call, Response response) throws IOException {
+                                                            if (response.isSuccessful()) {
+                                                                try {
+                                                                    // Parse JSON response
+                                                                    JSONObject jsonResponse = new JSONObject(response.body().string());
+                                                                    Log.d("TAG", jsonResponse.toString());  // Debug message
 
+                                                                    // Extract information from the JSON object
+                                                                    String nodeId = jsonResponse.getString("nodeId");
+                                                                    int xCoordinate = jsonResponse.getInt("xcoordinate");
+                                                                    int yCoordinate = jsonResponse.getInt("ycoordinate");
 
-                  // Method to update the map pin position
-// Method to update the map pin position
-                  private void updateMapPinPosition(int xCoordinate, int yCoordinate) {
-                      // Original image dimensions
-                      int originalWidth = 9006;
-                      int originalHeight = 5976;
+                                                                    // Update currentPositionNodeId with the received nodeId
+                                                                    currentPositionNodeId = nodeId;
 
-                      // SubsamplingScaleImageView dimensions
-                      int imageViewWidth = mapImageView.getSWidth();
-                      int imageViewHeight = mapImageView.getSHeight();
+                                                                    // Use the extracted values as needed
+                                                                    Log.d("Location Info", "Node ID: " + nodeId + ", X: " + xCoordinate + ", Y: " + yCoordinate);
 
-                      // Calculate scaling factors
-                      float scalingFactorWidth = (float) imageViewWidth / originalWidth;
-                      float scalingFactorHeight = (float) imageViewHeight / originalHeight;
+                                                                    // Update the position of the map pin marker on the main (UI) thread
+                                                                    runOnUiThread(new Runnable() {
+                                                                        @Override
+                                                                        public void run() {
+                                                                            updateMapPinPosition(xCoordinate, yCoordinate);
+                                                                        }
+                                                                    });
 
-                      // Translate coordinates to SubsamplingScaleImageView
-                      float pinLocationX = xCoordinate * scalingFactorWidth;
-                      float pinLocationY = yCoordinate * scalingFactorHeight;
+                                                                    // Now you can use nodeId, xCoordinate, and yCoordinate as needed in your app
+                                                                } catch (JSONException e) {
+                                                                    e.printStackTrace();
+                                                                    // Handle JSON parsing error
+                                                                    Log.e("JSON Parsing Error", "Error parsing JSON response", e);
+                                                                }
+                                                            } else {
+                                                                // Handle unsuccessful response
+                                                                Log.e("HTTP Response", "Unsuccessful: " + response.message());
+                                                            }
+                                                        }
 
-                      Log.d("X", "X"+pinLocationX);
-                      Log.d("Y", "Y"+pinLocationY);
-
-                      // Set the pin location
-                      PointF pinLocation = new PointF(pinLocationX, pinLocationY);
-                      mapImageView.setPin(pinLocation);
-
-                      float targetScale = 2.0f; // Example target scale
-                      
-                  }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            }
+                                                    }
             );
         }
     }
 
-    private int[] calculateDisplayedImageSize(int originalWidth, int originalHeight, int viewWidth, int viewHeight) {
-        float originalAspectRatio = (float) originalWidth / originalHeight;
-        float viewAspectRatio = (float) viewWidth / viewHeight;
 
-        int displayedWidth, displayedHeight;
-
-        if (originalAspectRatio > viewAspectRatio) {
-            // Image is wider than the view. Width should match, and height should be scaled down.
-            displayedWidth = viewWidth;
-            displayedHeight = Math.round(viewWidth / originalAspectRatio);
-        } else {
-            // Image is taller than the view. Height should match, and width should be scaled down.
-            displayedHeight = viewHeight;
-            displayedWidth = Math.round(viewHeight * originalAspectRatio);
-        }
-
-        return new int[]{displayedWidth, displayedHeight};
-    }
 
 }

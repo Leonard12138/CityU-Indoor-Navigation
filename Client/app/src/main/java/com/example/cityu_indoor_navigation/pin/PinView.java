@@ -2,22 +2,18 @@ package com.example.cityu_indoor_navigation.pin;
 
 import android.content.Context;
 import android.graphics.*;
-import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.example.cityu_indoor_navigation.R;
 
-
 public class PinView extends SubsamplingScaleImageView {
-
     private final Paint paint = new Paint();
-    private final PointF vPin = new PointF();
-    private PointF sPin;
+    private PointF sPin; // Single pin for custom drawable
     private Bitmap pin;
-
-    public PinView(Context context) {
-        this(context, null);
-    }
+    private List<PointF> pathPoints = new ArrayList<>(); // List of pins for the path
 
     public PinView(Context context, AttributeSet attr) {
         super(context, attr);
@@ -26,36 +22,39 @@ public class PinView extends SubsamplingScaleImageView {
 
     public void setPin(PointF sPin) {
         this.sPin = sPin;
-        initialise();
+        invalidate();
+    }
+
+    public void addPathPoint(PointF point) {
+        this.pathPoints.add(point);
+        invalidate();
+    }
+
+    public void clearPathPoints() {
+        this.pathPoints.clear();
         invalidate();
     }
 
     private void initialise() {
-        float density = getResources().getDisplayMetrics().densityDpi;
-        pin = BitmapFactory.decodeResource(this.getResources(), R.drawable.map_pin);
-        float w = (density/9200f) * pin.getWidth();
-        float h = (density/9200f) * pin.getHeight();
-        pin = Bitmap.createScaledBitmap(pin, (int)w, (int)h, true);
+        paint.setAntiAlias(true);
+        paint.setColor(Color.RED);
+        pin = BitmapFactory.decodeResource(getResources(), R.drawable.map_pin);
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-
-        // Don't draw pin before image is ready so it doesn't move around during setup.
-        if (!isReady()) {
-            return;
-        }
-
-        paint.setAntiAlias(true);
+        if (!isReady()) return;
 
         if (sPin != null && pin != null) {
-            sourceToViewCoord(sPin, vPin);
-            float vX = vPin.x - (pin.getWidth()/2);
-            float vY = vPin.y - pin.getHeight();
-            canvas.drawBitmap(pin, vX, vY, paint);
+            PointF vPin = sourceToViewCoord(sPin);
+            canvas.drawBitmap(pin, vPin.x - (pin.getWidth() / 2), vPin.y - pin.getHeight(), paint);
         }
 
+        for (PointF point : pathPoints) {
+            PointF vPoint = sourceToViewCoord(point);
+            canvas.drawCircle(vPoint.x, vPoint.y, 10, paint);
+        }
     }
-
 }
+
