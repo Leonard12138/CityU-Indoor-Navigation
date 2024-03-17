@@ -13,6 +13,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -58,28 +59,40 @@ public class IndoorLocateServiceImpl implements IndoorLocateService {
     }
 
     private String findNearestNeighbor(List<WifiData> wifiDataList, List<WifiData> wifiFingerprint) {
-        // Sort the wifiDataList by signal strength and select the top 5 strongest signals
+        // Filter the wifiFingerprint list to include only BSSIDs present in wifiDataList
+        Set<String> bssids = wifiDataList.stream()
+                                         .map(WifiData::getBssid)
+                                         .collect(Collectors.toSet());
+        
+        List<WifiData> filteredFingerprint = wifiFingerprint.stream()
+                                                             .filter(data -> bssids.contains(data.getBssid()))
+                                                             .collect(Collectors.toList());
+
+        // Sort the wifiDataList by signal strength and select the top 7 strongest signals
         List<WifiData> strongestSignals = wifiDataList.stream()
                                                       .sorted(Comparator.comparing(WifiData::getLevel).reversed())
-                                                      .limit(5)
+                                                      .limit(7)
                                                       .collect(Collectors.toList());
 
         Map<String, Double> nodeIdToWeightedSum = new HashMap<>();
 
         for (WifiData realTimeWifiData : strongestSignals) {
-            for (WifiData fingerprintData : wifiFingerprint) {
-                double distance = calculateEuclideanDistance(realTimeWifiData, fingerprintData);
-                double weight = 1.0 / (distance + 1); // Adding 1 to avoid division by zero
+            for (WifiData fingerprintData : filteredFingerprint) {
+                if (realTimeWifiData.getBssid().equals(fingerprintData.getBssid())) {
+                    double distance = calculateEuclideanDistance(realTimeWifiData, fingerprintData);
+                    double weight = 1.0 / (distance + 1); // Adding 1 to avoid division by zero
 
-                nodeIdToWeightedSum.merge(fingerprintData.getNodeId(), weight, Double::sum);
+                    nodeIdToWeightedSum.merge(fingerprintData.getNodeId(), weight, Double::sum);
+                }
             }
         }
 
         return nodeIdToWeightedSum.entrySet().stream()
-                                  .max(Map.Entry.comparingByValue())
-                                  .map(Map.Entry::getKey)
-                                  .orElse(null);
+                                          .max(Map.Entry.comparingByValue())
+                                          .map(Map.Entry::getKey)
+                                          .orElse(null);
     }
+
 
     private double calculateEuclideanDistance(WifiData wifiData1, WifiData wifiData2) {
         double signalStrengthDiff = wifiData1.getLevel() - wifiData2.getLevel();
