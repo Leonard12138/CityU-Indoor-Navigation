@@ -121,7 +121,7 @@ public class NavigationActivity extends AppCompatActivity {
         // Create JSON object with the required parameters
         JSONObject requestBody = new JSONObject();
         try {
-            requestBody.put("startNodeId", currentPositionNodeId);
+            requestBody.put("startNodeId", "110");
             requestBody.put("destinationRoomName", roomName);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -133,7 +133,7 @@ public class NavigationActivity extends AppCompatActivity {
 
         // Build the request
         Request request = new Request.Builder()
-                .url("http://192.168.0.105:8080//navigation/navigate")
+                .url("http://192.168.0.109:8080/navigation/navigate")
                 .post(body)
                 .build();
 
@@ -266,7 +266,7 @@ public class NavigationActivity extends AppCompatActivity {
 
             // Build the request
             Request request = new Request.Builder()
-                    .url("http://192.168.0.105:8080/indoorLocate/processWifiData")//172.28.178.14
+                    .url("http://192.168.0.109:8080/indoorLocate/processWifiData")//172.28.178.14
                     .post(requestBody)
                     .build();
 
