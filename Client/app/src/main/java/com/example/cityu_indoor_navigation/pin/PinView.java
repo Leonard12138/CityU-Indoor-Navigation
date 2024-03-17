@@ -48,8 +48,15 @@ public class PinView extends SubsamplingScaleImageView {
 
         if (sPin != null && pin != null) {
             PointF vPin = sourceToViewCoord(sPin);
-            canvas.drawBitmap(pin, vPin.x - (pin.getWidth() / 2), vPin.y - pin.getHeight(), paint);
+            // Calculate the desired size for the pin (e.g., 50x50 pixels)
+            int pinWidth = 50;
+            int pinHeight = 50;
+            // Scale the pin Bitmap to the desired size
+            Bitmap scaledPin = Bitmap.createScaledBitmap(pin, pinWidth, pinHeight, true);
+            // Draw the scaled pin Bitmap onto the canvas
+            canvas.drawBitmap(scaledPin, vPin.x - (pinWidth / 2), vPin.y - pinHeight, paint);
         }
+
 
         for (PointF point : pathPoints) {
             PointF vPoint = sourceToViewCoord(point);

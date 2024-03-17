@@ -28,7 +28,7 @@ public class IndoorLocateController {
     public ResponseEntity<LocationResponse> processWifiData(@RequestBody List<WifiData> wifiDataList) {
 
         try {
-            log.info("Processing WiFi Data!");
+//            log.info("Processing WiFi Data!");
 
             // Call the service to process and locate the user
             // Note: You may need to modify the service to handle a list of WifiData
