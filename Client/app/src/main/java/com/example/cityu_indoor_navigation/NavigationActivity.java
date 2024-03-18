@@ -121,7 +121,7 @@ public class NavigationActivity extends AppCompatActivity {
         // Create JSON object with the required parameters
         JSONObject requestBody = new JSONObject();
         try {
-            requestBody.put("startNodeId", "110");
+            requestBody.put("startNodeId", "110");//!!!!!!!!!!!!!!!!!!!!!change to be currentPositionNodeId later
             requestBody.put("destinationRoomName", roomName);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -150,11 +150,10 @@ public class NavigationActivity extends AppCompatActivity {
                 if (response.isSuccessful()) {
                     try {
                         String responseBody = response.body().string();
-                        JSONObject jsonResponse = new JSONObject(responseBody);
-                        Log.d("TAG", jsonResponse.toString());
+                        // Directly parse the response body as a JSONArray
+                        JSONArray pathArray = new JSONArray(responseBody);
+                        Log.d("TAG", pathArray.toString());
 
-                        // Extract path information from the JSON response
-                        JSONArray pathArray = jsonResponse.getJSONArray("path");
                         runOnUiThread(() -> {
                             mapImageView.clearPathPoints(); // Clear existing path points
                             for (int i = 0; i < pathArray.length(); i++) {
@@ -177,6 +176,7 @@ public class NavigationActivity extends AppCompatActivity {
                     Log.e("HTTP Response", "Unsuccessful: " + response.message());
                 }
             }
+
 
 
 

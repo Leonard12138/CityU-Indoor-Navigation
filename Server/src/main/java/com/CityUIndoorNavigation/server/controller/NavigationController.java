@@ -28,7 +28,7 @@ public class NavigationController {
         log.info("Received navigation request. Start node ID: {}, Destination room name: {}", startNodeId, destinationRoomName);
         
         Node startNode = navigationService.getNodeById(startNodeId);
-        log.info(startNode.getId());
+
         String destinationNodeId = navigationService.getNodeIdByRoomName(destinationRoomName);
 
         if (startNode == null || destinationNodeId == null) {
@@ -41,7 +41,41 @@ public class NavigationController {
         	log.info("Path not found");
             return ResponseEntity.badRequest().body("Path not found");
         }
-
+        
+        // Logging the path for debugging
+        logPathDetails(path);
+        
         return ResponseEntity.ok(path);
     }
+
+    private void logPathDetails(List<Map<String, Object>> path) {
+        if (path.isEmpty()) {
+            log.info("No path found.");
+            return;
+        }
+
+        // Initialize StringBuilder to accumulate the path sequence
+        StringBuilder pathSequence = new StringBuilder();
+        
+        // Log the total number of steps in the path
+        log.info("Path found with {} steps:", path.size());
+        
+        // Iterate through the path steps
+        for (int i = 0; i < path.size(); i++) {
+            Map<String, Object> step = path.get(i);
+            
+            // Append the current node ID to the path sequence
+            if (i > 0) { // Add the separator after the first element
+                pathSequence.append(" -> ");
+            }
+            pathSequence.append(step.get("nodeId"));
+            
+            // Optionally log the detailed information of each step
+            log.info("Node ID: {}, X: {}, Y: {}", step.get("nodeId"), step.get("xCoordinate"), step.get("yCoordinate"));
+        }
+        
+        // Log the complete path sequence
+        log.info("Path sequence: {}", pathSequence.toString());
+    }
+
 }

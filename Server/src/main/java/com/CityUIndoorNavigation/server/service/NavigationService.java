@@ -11,7 +11,7 @@ import com.CityUIndoorNavigation.server.data.Node;
 @Service
 public interface NavigationService {
 
-	void addNode(Node node);
+//	void addNode(Node node);
 
 	Node getNodeById(String id);
 	

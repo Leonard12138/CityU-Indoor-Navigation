@@ -9,26 +9,22 @@ import com.CityUIndoorNavigation.server.data.Node;
 @Service
 public class NavigationServiceImpl implements NavigationService {
 
-    private Set<Node> nodes = new HashSet<>();
-
-    @Override
-    public void addNode(Node node) {
-        nodes.add(node);
-    }
-
+    
     @Override
     public Node getNodeById(String id) {
-        for (Node node : nodes) {
-            if (node.getId().equals(id)) {
-                return node;
-            }
-        }
-        return null;
+        return Node.getNodeById(id);
     }
+
+
+//    @Override
+//    public void addNode(Node node) {
+//        nodes.add(node);
+//    }
+
 
     @Override
     public String getNodeIdByRoomName(String roomName) {
-        for (Node node : nodes) {
+        for (Node node : Node.getAllNodes().values()) {
             if (node.getRoomName() != null && node.getRoomName().equals(roomName)) {
                 return node.getId();
             }
@@ -47,17 +43,14 @@ public class NavigationServiceImpl implements NavigationService {
             return pathDetails; // Return empty list if start or destination node is invalid
         }
 
-        // Initialization
         Queue<Node> queue = new LinkedList<>();
         Map<Node, Node> previousNode = new HashMap<>();
         Set<Node> visited = new HashSet<>();
 
-        // Setup
         queue.add(startNode);
         visited.add(startNode);
         previousNode.put(startNode, null);
 
-        // BFS to find the shortest path
         while (!queue.isEmpty()) {
             Node currentNode = queue.remove();
             if (currentNode.equals(destinationNode)) {
@@ -73,28 +66,28 @@ public class NavigationServiceImpl implements NavigationService {
             }
         }
 
-        // Reconstruct the path and gather details
         if (!visited.contains(destinationNode)) {
             return pathDetails; // Return empty list if path is not found
         }
 
-        Node node = destinationNode;
-        while (node != null) {
-            Map<String, Object> nodeDetails = new HashMap<>();
-            nodeDetails.put("nodeId", node.getId());
-            nodeDetails.put("xCoordinate", node.getX());
-            nodeDetails.put("yCoordinate", node.getY());
-            pathDetails.add(0, nodeDetails); // Add to the beginning to reverse the path order
-
-            node = previousNode.get(node);
+        for (Node node = destinationNode; node != null; node = previousNode.get(node)) {
+            pathDetails.add(0, mapNodeDetails(node));
         }
 
         return pathDetails;
     }
 
-
-    private Set<Node> getNeighbors(Node node) {
-        return node.getNeighbors();
+    private Map<String, Object> mapNodeDetails(Node node) {
+        Map<String, Object> nodeDetails = new HashMap<>();
+        nodeDetails.put("nodeId", node.getId());
+        nodeDetails.put("xCoordinate", node.getX());
+        nodeDetails.put("yCoordinate", node.getY());
+        return nodeDetails;
     }
+
+
+
+
+
 
 }

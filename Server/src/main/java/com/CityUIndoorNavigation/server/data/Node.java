@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import lombok.Data;
@@ -37,24 +38,36 @@ public class Node {
         this.neighbors = new HashSet<>();
         allNodes.put(id, this);
     }
+    
+    public static Map<String, Node> getAllNodes() {
+        return allNodes;
+    }
+
 
     public void addNeighbor(Node neighbor) {
-        // Check if the neighbor is null or if it's already a neighbor
-        if (neighbor == null || this.neighbors.contains(neighbor)) {
-            return; // Do not add null or duplicate neighbors
-        }
+        if (neighbor == null) return; // Do not add null neighbors.
 
-        // Add the neighbor to the neighbor list
-        this.neighbors.add(neighbor);
-
-        // Ensure bidirectional relationship if not already established
-        if (!neighbor.neighbors.contains(this)) {
-            neighbor.neighbors.add(this);
+        boolean added = this.neighbors.add(neighbor); // Attempt to add the neighbor.
+        if (added && !neighbor.neighbors.contains(this)) {
+            // If the neighbor was added successfully and this node is not already a neighbor of the added node,
+            // then add this node as a neighbor of the added node.
+            neighbor.addNeighbor(this);
         }
     }
 
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Node node = (Node) o;
+        return Objects.equals(id, node.id);
+    }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 
 
 
@@ -68,7 +81,6 @@ public class Node {
             node.setRoomName(roomName);
         }
     }
-
     
     @PostConstruct
     public void init() {
@@ -538,250 +550,250 @@ public class Node {
  
         
 
-//         node1.addNeighbor(node2);
-//
-//        node2.addNeighbor(node3);
+         node1.addNeighbor(node2);
 
-//        node3.addNeighbor(node4);
-//        node4.addNeighbor(node5);
-//        node5.addNeighbor(node6);
-//        node6.addNeighbor(node7);
-//        node7.addNeighbor(node8);
-//        node8.addNeighbor(node40);
-//        node9.addNeighbor(node10);
-//        node10.addNeighbor(node11);
-//        node11.addNeighbor(node12);
-//        node12.addNeighbor(node13);
-//        node13.addNeighbor(node14);
-//        node14.addNeighbor(node15);
-//        node15.addNeighbor(node16);
-//        node16.addNeighbor(node17);
-//        node17.addNeighbor(node18);
-//        node18.addNeighbor(node19);
-//        node19.addNeighbor(node43);
-//        node20.addNeighbor(node21);
-//        node21.addNeighbor(node22);
-//        node22.addNeighbor(node23);
-//        node23.addNeighbor(node24);
-//        node24.addNeighbor(node25);
-//        node25.addNeighbor(node26);
-//        node26.addNeighbor(node27);
-//        node27.addNeighbor(node28);
-//        node28.addNeighbor(node29);
-//        node29.addNeighbor(node30);
-//        node30.addNeighbor(node44);
-//        node31.addNeighbor(node32);
-//        node32.addNeighbor(node33);
-//        node33.addNeighbor(node34);
-//        node34.addNeighbor(node35);
-//        node35.addNeighbor(node36);
-//        node36.addNeighbor(node37);
-//        node37.addNeighbor(node38);
-//        node38.addNeighbor(node39);
-//        node39.addNeighbor(node40);
-//        node40.addNeighbor(node41);
-//        node41.addNeighbor(node42);
-//        node42.addNeighbor(node45);
-//        node43.addNeighbor(node46);
-//        node44.addNeighbor(node47);
-//        node45.addNeighbor(node48);
-//        node46.addNeighbor(node49);
-//        node47.addNeighbor(node50);
-//        node48.addNeighbor(node51);
-//        node49.addNeighbor(node52);
-//        node50.addNeighbor(node64);
-//        node51.addNeighbor(node97);
-//        node51.addNeighbor(node75);
-//        node51.addNeighbor(node76);
-//        node52.addNeighbor(node98);
-//        node52.addNeighbor(node88);
-//        node52.addNeighbor(node87);
-//        node53.addNeighbor(node54);
-//        node54.addNeighbor(node55);
-//        node55.addNeighbor(node56);
-//        node56.addNeighbor(node57);
-//        node57.addNeighbor(node58);
-//        node58.addNeighbor(node59);
-//        node58.addNeighbor(node99);
-//        node59.addNeighbor(node60);
-//        node60.addNeighbor(node61);
-//        node61.addNeighbor(node62);
-//        node62.addNeighbor(node100);
-//        node62.addNeighbor(node63);
-//        node63.addNeighbor(node64);
-//        node64.addNeighbor(node65);
-//        node65.addNeighbor(node66);
-//        node66.addNeighbor(node67);
-//        node67.addNeighbor(node68);
-//        node68.addNeighbor(node69);
-//        node69.addNeighbor(node70);
-//        node70.addNeighbor(node71);
-//        node71.addNeighbor(node72);
-//        node72.addNeighbor(node73);
-//        node73.addNeighbor(node74);
-//        node74.addNeighbor(node75);
-//        node75.addNeighbor(node76);
-//        node75.addNeighbor(node97);
-//        node76.addNeighbor(node77);
-//        node76.addNeighbor(node97);
-//        node77.addNeighbor(node78);
-//        node78.addNeighbor(node79);
-//        node79.addNeighbor(node80);
-//        node80.addNeighbor(node81);
-//        node81.addNeighbor(node82);
-//        node82.addNeighbor(node83);
-//        node83.addNeighbor(node84);
-//        node84.addNeighbor(node85);
-//        node85.addNeighbor(node86);
-//        node86.addNeighbor(node87);
-//        node87.addNeighbor(node88);
-//        node87.addNeighbor(node98);
-//        node88.addNeighbor(node89);
-//        node88.addNeighbor(node98);
-//        node89.addNeighbor(node90);
-//        node90.addNeighbor(node91);
-//        node91.addNeighbor(node92);
-//        node92.addNeighbor(node93);
-//        node93.addNeighbor(node94);
-//        node94.addNeighbor(node95);
-//        node95.addNeighbor(node96);
-//        node95.addNeighbor(node101);
-//        node96.addNeighbor(node97);
-//        node97.addNeighbor(node102);
-//        node98.addNeighbor(node103);
-//        node99.addNeighbor(node104);
-//        node100.addNeighbor(node105);
-//        node101.addNeighbor(node106);
-//        node102.addNeighbor(node107);
-//        node103.addNeighbor(node108);
-//        node104.addNeighbor(node109);
-//        node105.addNeighbor(node110);
-//        node106.addNeighbor(node111);
-//        node107.addNeighbor(node112);
-//        node108.addNeighbor(node113);
-//        node109.addNeighbor(node114);
-//        node110.addNeighbor(node115);
-//        node111.addNeighbor(node116);
-//        node112.addNeighbor(node117);
-//        node113.addNeighbor(node118);
-//        node114.addNeighbor(node119);
-//        node115.addNeighbor(node120);
-//        node116.addNeighbor(node121);
-//        node117.addNeighbor(node122);
-//        node118.addNeighbor(node123);
-//        node119.addNeighbor(node124);
-//        node120.addNeighbor(node125);
-//        node121.addNeighbor(node126);
-//        node122.addNeighbor(node123);
-//        node123.addNeighbor(node128);
-//        node124.addNeighbor(node129);
-//        node125.addNeighbor(node130);
-//        node126.addNeighbor(node131);
-//        node127.addNeighbor(node132);
-//        node128.addNeighbor(node133);
-//        node129.addNeighbor(node139);
-//        node130.addNeighbor(node143);
-//        node131.addNeighbor(node176);
-//        node132.addNeighbor(node178);
-//        node133.addNeighbor(node179);
-//        node134.addNeighbor(node135);
-//        node135.addNeighbor(node136);
-//        node136.addNeighbor(node137);
-//        node137.addNeighbor(node138);
-//        node138.addNeighbor(node139);
-//        node139.addNeighbor(node140);
-//        node140.addNeighbor(node141);
-//        node141.addNeighbor(node142);
-//        node142.addNeighbor(node143);
-//        node143.addNeighbor(node144);
-//        node144.addNeighbor(node145);
-//        node145.addNeighbor(node146);
-//        node145.addNeighbor(node180);
-//        node146.addNeighbor(node147);
-//        node147.addNeighbor(node148);
-//        node148.addNeighbor(node149);
-//        node149.addNeighbor(node150);
-//        node150.addNeighbor(node151);
-//        node151.addNeighbor(node152);
-//        node152.addNeighbor(node153);
-//        node153.addNeighbor(node154);
-//        node154.addNeighbor(node155);
-//        node155.addNeighbor(node156);
-//        node156.addNeighbor(node157);
-//        node157.addNeighbor(node158);
-//        node157.addNeighbor(node178);
-//        node158.addNeighbor(node159);
-//        node159.addNeighbor(node160);
-//        node160.addNeighbor(node161);
-//        node161.addNeighbor(node162);
-//        node162.addNeighbor(node163);
-//        node163.addNeighbor(node164);
-//        node164.addNeighbor(node165);
-//        node165.addNeighbor(node166);
-//        node166.addNeighbor(node167);
-//        node167.addNeighbor(node168);
-//        node168.addNeighbor(node169);
-//        node169.addNeighbor(node170);
-//        node169.addNeighbor(node179);
-//        node170.addNeighbor(node171);
-//        node171.addNeighbor(node172);
-//        node172.addNeighbor(node173);
-//        node173.addNeighbor(node174);
-//        node174.addNeighbor(node175);
-//        node175.addNeighbor(node176);
-//        node176.addNeighbor(node177);
-//        node177.addNeighbor(node178);
-//        node178.addNeighbor(node181);
-//        node179.addNeighbor(node182);
-//        node180.addNeighbor(node183);
-//        node181.addNeighbor(node184);
-//        node182.addNeighbor(node185);
-//        node183.addNeighbor(node186);
-//        node184.addNeighbor(node187);
-//        node185.addNeighbor(node188);
-//        node186.addNeighbor(node210);
-//        node187.addNeighbor(node199);
-//        node188.addNeighbor(node221);
-//        node189.addNeighbor(node190);
-//        node190.addNeighbor(node191);
-//        node191.addNeighbor(node192);
-//        node192.addNeighbor(node193);
-//        node193.addNeighbor(node194);
-//        node194.addNeighbor(node195);
-//        node195.addNeighbor(node196);
-//        node196.addNeighbor(node197);
-//        node197.addNeighbor(node198);
-//        node198.addNeighbor(node199);
-//        node200.addNeighbor(node201);
-//        node201.addNeighbor(node202);
-//        node202.addNeighbor(node203);
-//        node203.addNeighbor(node204);
-//        node204.addNeighbor(node205);
-//        node205.addNeighbor(node206);
-//        node206.addNeighbor(node207);
-//        node207.addNeighbor(node208);
-//        node208.addNeighbor(node209);
-//        node209.addNeighbor(node210);
-//        node209.addNeighbor(node222);
-//        node210.addNeighbor(node211);
-//        node211.addNeighbor(node212);
-//        node212.addNeighbor(node213);
-//        node213.addNeighbor(node214);
-//        node214.addNeighbor(node215);
-//        node215.addNeighbor(node216);
-//        node216.addNeighbor(node217);
-//        node217.addNeighbor(node218);
-//        node218.addNeighbor(node219);
-//        node219.addNeighbor(node220);
-//        node220.addNeighbor(node221);
-//        node222.addNeighbor(node223);
-//        node223.addNeighbor(node224);
-//        node224.addNeighbor(node225);
-//        node225.addNeighbor(node226);
-//        node226.addNeighbor(node227);
-//        node227.addNeighbor(node228);
-//        node228.addNeighbor(node229);
-//        node229.addNeighbor(node230);
+        node2.addNeighbor(node3);
+
+        node3.addNeighbor(node4);
+        node4.addNeighbor(node5);
+        node5.addNeighbor(node6);
+        node6.addNeighbor(node7);
+        node7.addNeighbor(node8);
+        node8.addNeighbor(node40);
+        node9.addNeighbor(node10);
+        node10.addNeighbor(node11);
+        node11.addNeighbor(node12);
+        node12.addNeighbor(node13);
+        node13.addNeighbor(node14);
+        node14.addNeighbor(node15);
+        node15.addNeighbor(node16);
+        node16.addNeighbor(node17);
+        node17.addNeighbor(node18);
+        node18.addNeighbor(node19);
+        node19.addNeighbor(node43);
+        node20.addNeighbor(node21);
+        node21.addNeighbor(node22);
+        node22.addNeighbor(node23);
+        node23.addNeighbor(node24);
+        node24.addNeighbor(node25);
+        node25.addNeighbor(node26);
+        node26.addNeighbor(node27);
+        node27.addNeighbor(node28);
+        node28.addNeighbor(node29);
+        node29.addNeighbor(node30);
+        node30.addNeighbor(node44);
+        node31.addNeighbor(node32);
+        node32.addNeighbor(node33);
+        node33.addNeighbor(node34);
+        node34.addNeighbor(node35);
+        node35.addNeighbor(node36);
+        node36.addNeighbor(node37);
+        node37.addNeighbor(node38);
+        node38.addNeighbor(node39);
+        node39.addNeighbor(node40);
+        node40.addNeighbor(node41);
+        node41.addNeighbor(node42);
+        node42.addNeighbor(node45);
+        node43.addNeighbor(node46);
+        node44.addNeighbor(node47);
+        node45.addNeighbor(node48);
+        node46.addNeighbor(node49);
+        node47.addNeighbor(node50);
+        node48.addNeighbor(node51);
+        node49.addNeighbor(node52);
+        node50.addNeighbor(node64);
+        node51.addNeighbor(node97);
+        node51.addNeighbor(node75);
+        node51.addNeighbor(node76);
+        node52.addNeighbor(node98);
+        node52.addNeighbor(node88);
+        node52.addNeighbor(node87);
+        node53.addNeighbor(node54);
+        node54.addNeighbor(node55);
+        node55.addNeighbor(node56);
+        node56.addNeighbor(node57);
+        node57.addNeighbor(node58);
+        node58.addNeighbor(node59);
+        node58.addNeighbor(node99);
+        node59.addNeighbor(node60);
+        node60.addNeighbor(node61);
+        node61.addNeighbor(node62);
+        node62.addNeighbor(node100);
+        node62.addNeighbor(node63);
+        node63.addNeighbor(node64);
+        node64.addNeighbor(node65);
+        node65.addNeighbor(node66);
+        node66.addNeighbor(node67);
+        node67.addNeighbor(node68);
+        node68.addNeighbor(node69);
+        node69.addNeighbor(node70);
+        node70.addNeighbor(node71);
+        node71.addNeighbor(node72);
+        node72.addNeighbor(node73);
+        node73.addNeighbor(node74);
+        node74.addNeighbor(node75);
+        node75.addNeighbor(node76);
+        node75.addNeighbor(node97);
+        node76.addNeighbor(node77);
+        node76.addNeighbor(node97);
+        node77.addNeighbor(node78);
+        node78.addNeighbor(node79);
+        node79.addNeighbor(node80);
+        node80.addNeighbor(node81);
+        node81.addNeighbor(node82);
+        node82.addNeighbor(node83);
+        node83.addNeighbor(node84);
+        node84.addNeighbor(node85);
+        node85.addNeighbor(node86);
+        node86.addNeighbor(node87);
+        node87.addNeighbor(node88);
+        node87.addNeighbor(node98);
+        node88.addNeighbor(node89);
+        node88.addNeighbor(node98);
+        node89.addNeighbor(node90);
+        node90.addNeighbor(node91);
+        node91.addNeighbor(node92);
+        node92.addNeighbor(node93);
+        node93.addNeighbor(node94);
+        node94.addNeighbor(node95);
+        node95.addNeighbor(node96);
+        node95.addNeighbor(node101);
+        node96.addNeighbor(node97);
+        node97.addNeighbor(node102);
+        node98.addNeighbor(node103);
+        node99.addNeighbor(node104);
+        node100.addNeighbor(node105);
+        node101.addNeighbor(node106);
+        node102.addNeighbor(node107);
+        node103.addNeighbor(node108);
+        node104.addNeighbor(node109);
+        node105.addNeighbor(node110);
+        node106.addNeighbor(node111);
+        node107.addNeighbor(node112);
+        node108.addNeighbor(node113);
+        node109.addNeighbor(node114);
+        node110.addNeighbor(node115);
+        node111.addNeighbor(node116);
+        node112.addNeighbor(node117);
+        node113.addNeighbor(node118);
+        node114.addNeighbor(node119);
+        node115.addNeighbor(node120);
+        node116.addNeighbor(node121);
+        node117.addNeighbor(node122);
+        node118.addNeighbor(node123);
+        node119.addNeighbor(node124);
+        node120.addNeighbor(node125);
+        node121.addNeighbor(node126);
+        node122.addNeighbor(node123);
+        node123.addNeighbor(node128);
+        node124.addNeighbor(node129);
+        node125.addNeighbor(node130);
+        node126.addNeighbor(node131);
+        node127.addNeighbor(node132);
+        node128.addNeighbor(node133);
+        node129.addNeighbor(node139);
+        node130.addNeighbor(node143);
+        node131.addNeighbor(node176);
+        node132.addNeighbor(node178);
+        node133.addNeighbor(node179);
+        node134.addNeighbor(node135);
+        node135.addNeighbor(node136);
+        node136.addNeighbor(node137);
+        node137.addNeighbor(node138);
+        node138.addNeighbor(node139);
+        node139.addNeighbor(node140);
+        node140.addNeighbor(node141);
+        node141.addNeighbor(node142);
+        node142.addNeighbor(node143);
+        node143.addNeighbor(node144);
+        node144.addNeighbor(node145);
+        node145.addNeighbor(node146);
+        node145.addNeighbor(node180);
+        node146.addNeighbor(node147);
+        node147.addNeighbor(node148);
+        node148.addNeighbor(node149);
+        node149.addNeighbor(node150);
+        node150.addNeighbor(node151);
+        node151.addNeighbor(node152);
+        node152.addNeighbor(node153);
+        node153.addNeighbor(node154);
+        node154.addNeighbor(node155);
+        node155.addNeighbor(node156);
+        node156.addNeighbor(node157);
+        node157.addNeighbor(node158);
+        node157.addNeighbor(node178);
+        node158.addNeighbor(node159);
+        node159.addNeighbor(node160);
+        node160.addNeighbor(node161);
+        node161.addNeighbor(node162);
+        node162.addNeighbor(node163);
+        node163.addNeighbor(node164);
+        node164.addNeighbor(node165);
+        node165.addNeighbor(node166);
+        node166.addNeighbor(node167);
+        node167.addNeighbor(node168);
+        node168.addNeighbor(node169);
+        node169.addNeighbor(node170);
+        node169.addNeighbor(node179);
+        node170.addNeighbor(node171);
+        node171.addNeighbor(node172);
+        node172.addNeighbor(node173);
+        node173.addNeighbor(node174);
+        node174.addNeighbor(node175);
+        node175.addNeighbor(node176);
+        node176.addNeighbor(node177);
+        node177.addNeighbor(node178);
+        node178.addNeighbor(node181);
+        node179.addNeighbor(node182);
+        node180.addNeighbor(node183);
+        node181.addNeighbor(node184);
+        node182.addNeighbor(node185);
+        node183.addNeighbor(node186);
+        node184.addNeighbor(node187);
+        node185.addNeighbor(node188);
+        node186.addNeighbor(node210);
+        node187.addNeighbor(node199);
+        node188.addNeighbor(node221);
+        node189.addNeighbor(node190);
+        node190.addNeighbor(node191);
+        node191.addNeighbor(node192);
+        node192.addNeighbor(node193);
+        node193.addNeighbor(node194);
+        node194.addNeighbor(node195);
+        node195.addNeighbor(node196);
+        node196.addNeighbor(node197);
+        node197.addNeighbor(node198);
+        node198.addNeighbor(node199);
+        node200.addNeighbor(node201);
+        node201.addNeighbor(node202);
+        node202.addNeighbor(node203);
+        node203.addNeighbor(node204);
+        node204.addNeighbor(node205);
+        node205.addNeighbor(node206);
+        node206.addNeighbor(node207);
+        node207.addNeighbor(node208);
+        node208.addNeighbor(node209);
+        node209.addNeighbor(node210);
+        node209.addNeighbor(node222);
+        node210.addNeighbor(node211);
+        node211.addNeighbor(node212);
+        node212.addNeighbor(node213);
+        node213.addNeighbor(node214);
+        node214.addNeighbor(node215);
+        node215.addNeighbor(node216);
+        node216.addNeighbor(node217);
+        node217.addNeighbor(node218);
+        node218.addNeighbor(node219);
+        node219.addNeighbor(node220);
+        node220.addNeighbor(node221);
+        node222.addNeighbor(node223);
+        node223.addNeighbor(node224);
+        node224.addNeighbor(node225);
+        node225.addNeighbor(node226);
+        node226.addNeighbor(node227);
+        node227.addNeighbor(node228);
+        node228.addNeighbor(node229);
+        node229.addNeighbor(node230);
     }
     
 
