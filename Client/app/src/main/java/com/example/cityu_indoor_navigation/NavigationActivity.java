@@ -121,7 +121,7 @@ public class NavigationActivity extends AppCompatActivity {
         // Create JSON object with the required parameters
         JSONObject requestBody = new JSONObject();
         try {
-            requestBody.put("startNodeId", "110");//!!!!!!!!!!!!!!!!!!!!!change to be currentPositionNodeId later
+            requestBody.put("startNodeId", currentPositionNodeId);//!!!!!!!!!!!!!!!!!!!!!change to be currentPositionNodeId later
             requestBody.put("destinationRoomName", roomName);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -133,7 +133,7 @@ public class NavigationActivity extends AppCompatActivity {
 
         // Build the request
         Request request = new Request.Builder()
-                .url("http://192.168.0.109:8080/navigation/navigate")
+                .url("http://172.28.231.215:8080/navigation/navigate")
                 .post(body)
                 .build();
 
@@ -266,7 +266,7 @@ public class NavigationActivity extends AppCompatActivity {
 
             // Build the request
             Request request = new Request.Builder()
-                    .url("http://192.168.0.109:8080/indoorLocate/processWifiData")//172.28.178.14
+                    .url("http://172.28.231.215:8080/indoorLocate/processWifiData")//172.28.178.14
                     .post(requestBody)
                     .build();
 
@@ -301,41 +301,46 @@ public class NavigationActivity extends AppCompatActivity {
                                                         @Override
                                                         public void onResponse(Call call, Response response) throws IOException {
                                                             if (response.isSuccessful()) {
-                                                                try {
-                                                                    // Parse JSON response
-                                                                    JSONObject jsonResponse = new JSONObject(response.body().string());
-                                                                    Log.d("TAG", jsonResponse.toString());  // Debug message
+                                                                String responseBody = response.body().string();
+                                                                if (responseBody != null && !responseBody.isEmpty()) {
+                                                                    try {
+                                                                        JSONObject jsonResponse = new JSONObject(responseBody);
+                                                                        Log.d("TAG", jsonResponse.toString());  // Debug message
 
-                                                                    // Extract information from the JSON object
-                                                                    String nodeId = jsonResponse.getString("nodeId");
-                                                                    int xCoordinate = jsonResponse.getInt("xcoordinate");
-                                                                    int yCoordinate = jsonResponse.getInt("ycoordinate");
+                                                                        // Extract information from the JSON object
+                                                                        String nodeId = jsonResponse.getString("nodeId");
+                                                                        int xCoordinate = jsonResponse.getInt("xcoordinate");
+                                                                        int yCoordinate = jsonResponse.getInt("ycoordinate");
 
-                                                                    // Update currentPositionNodeId with the received nodeId
-                                                                    currentPositionNodeId = nodeId;
+                                                                        // Update currentPositionNodeId with the received nodeId
+                                                                        currentPositionNodeId = nodeId;
 
-                                                                    // Use the extracted values as needed
-                                                                    Log.d("Location Info", "Node ID: " + nodeId + ", X: " + xCoordinate + ", Y: " + yCoordinate);
+                                                                        // Use the extracted values as needed
+                                                                        Log.d("Location Info", "Node ID: " + nodeId + ", X: " + xCoordinate + ", Y: " + yCoordinate);
 
-                                                                    // Update the position of the map pin marker on the main (UI) thread
-                                                                    runOnUiThread(new Runnable() {
-                                                                        @Override
-                                                                        public void run() {
-                                                                            updateMapPinPosition(xCoordinate, yCoordinate);
-                                                                        }
-                                                                    });
+                                                                        // Update the position of the map pin marker on the main (UI) thread
+                                                                        runOnUiThread(new Runnable() {
+                                                                            @Override
+                                                                            public void run() {
+                                                                                updateMapPinPosition(xCoordinate, yCoordinate);
+                                                                            }
+                                                                        });
 
-                                                                    // Now you can use nodeId, xCoordinate, and yCoordinate as needed in your app
-                                                                } catch (JSONException e) {
-                                                                    e.printStackTrace();
-                                                                    // Handle JSON parsing error
-                                                                    Log.e("JSON Parsing Error", "Error parsing JSON response", e);
+                                                                        // Now you can use nodeId, xCoordinate, and yCoordinate as needed in your app
+                                                                    } catch (JSONException e) {
+                                                                        e.printStackTrace();
+                                                                        // Handle JSON parsing error
+                                                                        Log.e("JSON Parsing Error", "Error parsing JSON response", e);
+                                                                    }
+                                                                } else {
+                                                                    Log.e("Response Error", "Empty response body");
                                                                 }
                                                             } else {
                                                                 // Handle unsuccessful response
                                                                 Log.e("HTTP Response", "Unsuccessful: " + response.message());
                                                             }
                                                         }
+
 
                                                     }
             );
