@@ -71,7 +71,7 @@ public class NavigationController {
             pathSequence.append(step.get("nodeId"));
             
             // Optionally log the detailed information of each step
-            log.info("Node ID: {}, X: {}, Y: {}", step.get("nodeId"), step.get("xCoordinate"), step.get("yCoordinate"));
+//            log.info("Node ID: {}, X: {}, Y: {}", step.get("nodeId"), step.get("xCoordinate"), step.get("yCoordinate"));
         }
         
         // Log the complete path sequence
