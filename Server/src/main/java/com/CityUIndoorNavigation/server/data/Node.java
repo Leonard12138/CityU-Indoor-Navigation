@@ -602,12 +602,11 @@ public class Node {
         node48.addNeighbor(node51);
         node49.addNeighbor(node52);
         node50.addNeighbor(node64);
-        node51.addNeighbor(node97);
-        node51.addNeighbor(node75);
+
         node51.addNeighbor(node76);
-        node52.addNeighbor(node98);
+
         node52.addNeighbor(node88);
-        node52.addNeighbor(node87);
+
         node53.addNeighbor(node54);
         node54.addNeighbor(node55);
         node55.addNeighbor(node56);
@@ -633,7 +632,7 @@ public class Node {
         node73.addNeighbor(node74);
         node74.addNeighbor(node75);
         node75.addNeighbor(node76);
-        node75.addNeighbor(node97);
+
         node76.addNeighbor(node77);
         node76.addNeighbor(node97);
         node77.addNeighbor(node78);
@@ -647,7 +646,7 @@ public class Node {
         node85.addNeighbor(node86);
         node86.addNeighbor(node87);
         node87.addNeighbor(node88);
-        node87.addNeighbor(node98);
+        
         node88.addNeighbor(node89);
         node88.addNeighbor(node98);
         node89.addNeighbor(node90);
@@ -658,7 +657,6 @@ public class Node {
         node94.addNeighbor(node95);
         node95.addNeighbor(node96);
         node95.addNeighbor(node101);
-        node96.addNeighbor(node97);
         node97.addNeighbor(node102);
         node98.addNeighbor(node103);
         node99.addNeighbor(node104);
@@ -684,7 +682,7 @@ public class Node {
         node119.addNeighbor(node124);
         node120.addNeighbor(node125);
         node121.addNeighbor(node126);
-        node122.addNeighbor(node123);
+        node122.addNeighbor(node127);
         node123.addNeighbor(node128);
         node124.addNeighbor(node129);
         node125.addNeighbor(node130);
@@ -694,8 +692,8 @@ public class Node {
         node129.addNeighbor(node139);
         node130.addNeighbor(node143);
         node131.addNeighbor(node176);
-        node132.addNeighbor(node178);
-        node133.addNeighbor(node179);
+        node132.addNeighbor(node157);
+        node133.addNeighbor(node169);
         node134.addNeighbor(node135);
         node135.addNeighbor(node136);
         node136.addNeighbor(node137);
@@ -742,7 +740,7 @@ public class Node {
         node174.addNeighbor(node175);
         node175.addNeighbor(node176);
         node176.addNeighbor(node177);
-        node177.addNeighbor(node178);
+
         node178.addNeighbor(node181);
         node179.addNeighbor(node182);
         node180.addNeighbor(node183);
@@ -775,7 +773,7 @@ public class Node {
         node208.addNeighbor(node209);
         node209.addNeighbor(node210);
         node209.addNeighbor(node222);
-        node210.addNeighbor(node211);
+        node210.addNeighbor(node209);
         node211.addNeighbor(node212);
         node212.addNeighbor(node213);
         node213.addNeighbor(node214);
