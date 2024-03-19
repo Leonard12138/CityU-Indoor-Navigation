@@ -24,13 +24,26 @@ public class NavigationServiceImpl implements NavigationService {
 
     @Override
     public String getNodeIdByRoomName(String roomName) {
+        if (roomName == null) return null;
+
+        // Normalize the input: remove hyphens and convert to lower case
+        String normalizedInput = roomName.replace("-", "").toLowerCase();
+
         for (Node node : Node.getAllNodes().values()) {
-            if (node.getRoomName() != null && node.getRoomName().equals(roomName)) {
-                return node.getId();
+            if (node.getRoomName() != null) {
+                // Normalize the room name of the node: remove hyphens and convert to lower case
+                String normalizedNodeName = node.getRoomName().replace("-", "").toLowerCase();
+                
+                // Check if the normalized names are equal
+                if (normalizedNodeName.equals(normalizedInput)) {
+                    return node.getId(); // Return the ID of the first matching node
+                }
             }
         }
-        return null;
+        return null; // Return null if no matching node is found
     }
+
+
 
     @Override
     public List<Map<String, Object>> findPath(String startId, String destinationId) {

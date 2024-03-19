@@ -279,7 +279,7 @@ public class Node {
          allNodes.put(node96.getId(), node96);
          Node node97 = new Node().setId("97").setX(4197).setY(3538).setRoomName(null);
          allNodes.put(node97.getId(), node97);
-         Node node98 = new Node().setId("98").setX(1835).setY(3533).setRoomName(null);
+         Node node98 = new Node().setId("98").setX(1835).setY(3533).setRoomName("G5-317");
          allNodes.put(node98.getId(), node98);
          Node node99 = new Node().setId("99").setX(7647).setY(3477).setRoomName(null);
          allNodes.put(node99.getId(), node99);
