@@ -9,11 +9,13 @@ import com.CityUIndoorNavigation.server.data.WifiData;
 import com.CityUIndoorNavigation.server.repository.WifiDataRepository;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -86,23 +88,40 @@ public class IndoorLocateServiceImpl implements IndoorLocateService {
 
 
     private String findNearestNeighbor(List<WifiData> wifiDataList, List<WifiData> wifiFingerprint) {
-        // Signal normalization could be implemented here
+        // Filter the wifiFingerprint list to include only BSSIDs present in wifiDataList
         Set<String> bssids = wifiDataList.stream().map(WifiData::getBssid).collect(Collectors.toSet());
-        List<WifiData> filteredFingerprint = wifiFingerprint.stream().filter(data -> bssids.contains(data.getBssid())).collect(Collectors.toList());
+        List<WifiData> filteredFingerprint = wifiFingerprint.stream()
+                .filter(data -> bssids.contains(data.getBssid()))
+                .collect(Collectors.toList());
+
+        // Sort the wifiDataList by signal strength and select the top K strongest signals
+        PriorityQueue<WifiData> topKSignals = new PriorityQueue<>(Comparator.comparing(WifiData::getLevel).reversed());
+        topKSignals.addAll(wifiDataList);
+        List<WifiData> strongestSignals = new ArrayList<>();
+        for (int i = 0; i < 7 && !topKSignals.isEmpty(); i++) {
+            strongestSignals.add(topKSignals.poll());
+        }
 
         Map<String, Double> nodeIdToWeightedSum = new HashMap<>();
-        for (WifiData realTimeWifiData : wifiDataList) {
+
+        for (WifiData realTimeWifiData : strongestSignals) {
             for (WifiData fingerprintData : filteredFingerprint) {
                 if (realTimeWifiData.getBssid().equals(fingerprintData.getBssid())) {
                     double distance = calculateEuclideanDistance(realTimeWifiData, fingerprintData);
-                    double weight = 1.0 / (Math.pow(distance, 2) + 1); // Adjusted for signal attenuation
+                    double weight = 1.0 / (distance + 1); // Adding 1 to avoid division by zero
+
                     nodeIdToWeightedSum.merge(fingerprintData.getNodeId(), weight, Double::sum);
                 }
             }
         }
 
-        return Collections.max(nodeIdToWeightedSum.entrySet(), Map.Entry.comparingByValue()).getKey();
+        // Find the node with the highest weighted sum
+        return nodeIdToWeightedSum.entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
+                .orElse(null);
     }
+
 
     private double calculateEuclideanDistance(WifiData wifiData1, WifiData wifiData2) {
         // Placeholder for normalization logic
